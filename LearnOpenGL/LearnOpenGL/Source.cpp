@@ -207,6 +207,11 @@ int main()
     glBindVertexArray(0);
 
 
+    int nrAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
+
+
     //main tick loop
     //--------------
     while (!glfwWindowShouldClose(window))
