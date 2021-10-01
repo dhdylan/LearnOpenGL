@@ -11,9 +11,10 @@ const char* VERTEX_SHADER_SOURCE = "#version 330 core\n"
 
 const char* FRAGMENT_SHADER_SOURCE = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"uniform vec4 vertexColor;"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 0.65f, 0.4f, 1.0);\n"
+"   FragColor = vertexColor;\n"
 "}\0";
 
 const char* YELLOW_FRAGMENT_SHADER_SOURCE = "#version 330 core\n"
@@ -207,11 +208,6 @@ int main()
     glBindVertexArray(0);
 
 
-    int nrAttributes;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-
-
     //main tick loop
     //--------------
     while (!glfwWindowShouldClose(window))
@@ -225,8 +221,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         //now render actual triangle
         glUseProgram(shader_program); // tell openGL that we are using this shader program
+        float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertex_color_location = glGetUniformLocation(shader_program, "vertexColor");
+        glUniform4f(vertex_color_location, 0.0f, greenValue, 0.0f, 1.0f);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glUseProgram(yellow_shader_program);
         glBindVertexArray(VAOt);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
