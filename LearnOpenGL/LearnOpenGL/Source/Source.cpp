@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <shader.h>
 
 const char* VERTEX_SHADER_SOURCE =
 "#version 330 core\n"
