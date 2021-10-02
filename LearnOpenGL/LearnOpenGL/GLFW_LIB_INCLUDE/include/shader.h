@@ -14,7 +14,7 @@ class Shader {
 		unsigned int program_id;
 
 		//constructor that reads and builds the shader
-		Shader(const char* vertex_path, const char* frag_path)
+		Shader(const std::string& vertex_path, const std::string& frag_path)
 		{
 			//first, read in source code and store as c_str
 			//---------------------------------------------
@@ -56,7 +56,7 @@ class Shader {
 
 			//set up shader objects
 			//---------------------
-			unsigned int vertex_id, frag_id, program_id;
+			unsigned int vertex_id, frag_id;
 			char infolog[512];
 			int success;
 

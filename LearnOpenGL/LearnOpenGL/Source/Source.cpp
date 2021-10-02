@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <shader.h>
+#include <filesystem>
 
 const char* VERTEX_SHADER_SOURCE =
 "#version 330 core\n"
@@ -65,58 +66,9 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //tell glfw to call this function for the "SetFrameBufferSizeCallback" callback
 
 
-
-    //setting up shaders and shader program
+    //set up shader program
     //-------------------------------------
-
-    Shader rainbow_shader("./shader.vert", "./shader.frag");
-    /*unsigned int vertex_shader;
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER); //create GPU object
-    glShaderSource(vertex_shader, 1, &VERTEX_SHADER_SOURCE, NULL); //give that GPU object it's source code
-    glCompileShader(vertex_shader); //compile source code
-    //check for shader cource code compilation errors
-    int  successV;
-    char infoLogV[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &successV);
-    if (!successV)
-    {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLogV);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLogV << std::endl;
-    }
-    //set up frag shader
-    unsigned int fragment_shader;
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &FRAGMENT_SHADER_SOURCE, NULL);
-    glCompileShader(fragment_shader);
-    //check for shader cource code compilation errors
-    int  successF;
-    char infoLogF[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &successF);
-    if (!successF)
-    {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLogF);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLogF << std::endl;
-    }
-
-    //create shader program that links our shaders together
-    unsigned int shader_program;
-    shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-    // error check shader_program linking
-    int successP;
-    char infoLogP[512];
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &successP); //get status
-    if (!successP)
-    {
-        glGetProgramInfoLog(shader_program, 512, NULL, infoLogP); //if failed, tell us what happened
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLogF << std::endl;
-    }
-
-    glDeleteShader(vertex_shader); //now get rid of the shader objects, we're done w them
-    glDeleteShader(fragment_shader);
-    */
+    Shader rainbow_shader("./Source/shader.vert", "./Source/shader.frag");
 
     //set up vertex data and buffers
     //------------------------------
@@ -130,6 +82,7 @@ int main()
     int indices[] = {
         0, 1, 2
     };
+
     //generate VBO and VAO objects on the GPU
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -147,6 +100,7 @@ int main()
     //position
     glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
+
     //color
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -172,7 +126,6 @@ int main()
         rainbow_shader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
         //swap buffers and check and call events
         glfwSwapBuffers(window);
