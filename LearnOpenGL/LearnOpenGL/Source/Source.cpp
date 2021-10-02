@@ -107,7 +107,7 @@ int main()
 
     //unbind
     glBindVertexArray(0);
-    double deltaTime = 0;
+    double deltaTime = glfwGetTime();
 
     //main tick loop
     //--------------
@@ -119,7 +119,7 @@ int main()
         //rendering stuff
         
         //make a background
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //now render actual triangle
@@ -127,7 +127,7 @@ int main()
         double time = glfwGetTime();
         deltaTime = time - deltaTime;
         std::cout << deltaTime << std::endl;
-        double xOffset = (sin(time) * 2.0);
+        double xOffset = sin(time);
         rainbow_shader.setFloat("xOffset", xOffset);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
