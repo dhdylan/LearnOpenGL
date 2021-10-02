@@ -47,7 +47,7 @@ class Shader {
 			}
 			catch(std::ifstream::failure e)
 			{
-				std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+				std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n" << e.what() << std::endl;
 			}
 
 			//now use cstr source code to set up the actual shaders

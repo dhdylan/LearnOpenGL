@@ -68,7 +68,9 @@ int main()
 
     //setting up shaders and shader program
     //-------------------------------------
-    unsigned int vertex_shader;
+
+    Shader rainbow_shader("./shader.vert", "./shader.frag");
+    /*unsigned int vertex_shader;
     vertex_shader = glCreateShader(GL_VERTEX_SHADER); //create GPU object
     glShaderSource(vertex_shader, 1, &VERTEX_SHADER_SOURCE, NULL); //give that GPU object it's source code
     glCompileShader(vertex_shader); //compile source code
@@ -114,7 +116,7 @@ int main()
 
     glDeleteShader(vertex_shader); //now get rid of the shader objects, we're done w them
     glDeleteShader(fragment_shader);
-
+    */
 
     //set up vertex data and buffers
     //------------------------------
@@ -167,7 +169,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         //now render actual triangle
-        glUseProgram(shader_program); // tell openGL that we are using this shader program
+        rainbow_shader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -180,7 +182,6 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shader_program);
 
     glfwTerminate();
     return 0;
