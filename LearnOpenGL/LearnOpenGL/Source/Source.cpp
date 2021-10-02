@@ -107,7 +107,7 @@ int main()
 
     //unbind
     glBindVertexArray(0);
-
+    double deltaTime = 0;
 
     //main tick loop
     //--------------
@@ -124,6 +124,11 @@ int main()
 
         //now render actual triangle
         rainbow_shader.use();
+        double time = glfwGetTime();
+        deltaTime = time - deltaTime;
+        std::cout << deltaTime << std::endl;
+        double xOffset = (sin(time) * 2.0);
+        rainbow_shader.setFloat("xOffset", xOffset);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
