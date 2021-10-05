@@ -50,13 +50,18 @@ int main()
 
     //set up shader program
     //-------------------------------------
-    Shader rainbow_shader("./Source/shader.vert", "./Source/shader.frag");
+    Shader standard_shader("./Source/shader.vert", "./Source/shader.frag");
+    standard_shader.use();
 
 
     //set up texture
     //--------------
-    unsigned int texture;
+    unsigned int texture, texture2;
     glGenTextures(1, &texture);
+    glGenTextures(1, &texture2);
+
+    //first texture
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     // set the texture wrapping/filtering options (on the currently bound texture object)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -76,7 +81,33 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-    rainbow_shader.setTexture2D("_texture", texture);
+
+    //2nd texture
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //load image and generate texture
+    stbi_set_flip_vertically_on_load(true);
+    data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        //note that this image is a png which has an alpha channel so we specify that with the glenum "GL_RGBA"
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+
+    stbi_image_free(data);
+
+    //tell shader to use the textures
+    standard_shader.setInt("_texture", 0);
+    standard_shader.setInt("_texture2", 1);
 
 
     //set up vertex data and buffers
@@ -122,7 +153,6 @@ int main()
 
     //unbind
     glBindVertexArray(0);
-    double deltaTime = glfwGetTime();
 
     //main tick loop
     //--------------
@@ -132,14 +162,13 @@ int main()
         processInput(window);
 
         //rendering stuff
+        //---------------
         
         //make a background
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //now render actual triangle
-        rainbow_shader.use();
-        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
