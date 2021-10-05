@@ -154,6 +154,8 @@ int main()
     //unbind
     glBindVertexArray(0);
 
+    float deltaOpacity = 0.0f;
+
     //main tick loop
     //--------------
     while (!glfwWindowShouldClose(window))
@@ -170,6 +172,16 @@ int main()
 
         //now render actual triangle
         standard_shader.setFloat("time", (float)sin(glfwGetTime()));
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        {
+            deltaOpacity += .01f;
+        }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        {
+            deltaOpacity -= .01f;
+        }
+        deltaOpacity = std::clamp(deltaOpacity, -0.5f, 0.5f);
+        standard_shader.setFloat("deltaOpacity", deltaOpacity);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
