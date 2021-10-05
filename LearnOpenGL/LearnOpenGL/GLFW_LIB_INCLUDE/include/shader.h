@@ -124,6 +124,10 @@ class Shader {
 		{
 			glUniform1f(glGetUniformLocation(program_id, name.c_str()), value);
 		}
+		void setTexture2D(const std::string& name, unsigned int id) const
+		{
+			glUniform1i(glGetUniformLocation(program_id, name.c_str()), id);
+		}
 };
 
 #endif

@@ -1,16 +1,15 @@
 #version 330 core
+#define PI 3.1415926538
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec3 aColor;
-
-uniform float xOffset;
+layout (location=2) in vec2 aTexCoord;
 
 out vec3 vertexColor;
-out vec3 vertexPosition;
+out vec2 texCoord;
 
 void main()
 {
-	gl_Position = vec4(aPos.x + xOffset, aPos.y, aPos.z, 1.0f);
-	vertexColor = aColor;
-	
-	vertexPosition = vec3(normalize(abs(aPos.x + xOffset)), abs(aPos.y + xOffset), abs(aPos.z + xOffset));
+	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);
+	vertexColor = vec3(aColor);
+	texCoord = aTexCoord;
 }

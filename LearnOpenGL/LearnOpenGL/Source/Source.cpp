@@ -3,26 +3,8 @@
 #include <iostream>
 #include <shader.h>
 #include <filesystem>
+#include <stb_image.h>
 
-const char* VERTEX_SHADER_SOURCE =
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 vertexColor;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos, 1.0);\n"
-"   vertexColor = aColor;\n"
-"}\0";
-
-const char* FRAGMENT_SHADER_SOURCE = 
-"#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 vertexColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(vertexColor, 1.0f);\n"
-"}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -70,17 +52,46 @@ int main()
     //-------------------------------------
     Shader rainbow_shader("./Source/shader.vert", "./Source/shader.frag");
 
+
+    //set up texture
+    //--------------
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load and generate the texture
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    rainbow_shader.setTexture2D("_texture", texture);
+
+
     //set up vertex data and buffers
     //------------------------------
     float vertices[] = {
-        // positions            // colors
-         0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   // bottom right
-        -0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,   // bottom left
-         0.0f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f    // top 
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
     };
 
     int indices[] = {
-        0, 1, 2
+        0, 1, 2,
+        2, 3, 0
     };
 
     //generate VBO and VAO objects on the GPU
@@ -99,11 +110,15 @@ int main()
     //set up vertex attributes
     //position
     glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
 
     //color
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    //texture coordinates
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
     //unbind
     glBindVertexArray(0);
@@ -124,13 +139,9 @@ int main()
 
         //now render actual triangle
         rainbow_shader.use();
-        double time = glfwGetTime();
-        deltaTime = time - deltaTime;
-        std::cout << deltaTime << std::endl;
-        double xOffset = sin(time);
-        rainbow_shader.setFloat("xOffset", xOffset);
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         //swap buffers and check and call events
         glfwSwapBuffers(window);
