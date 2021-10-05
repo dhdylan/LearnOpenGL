@@ -155,11 +155,18 @@ int main()
     glBindVertexArray(0);
 
     float deltaOpacity = 0.0f;
+    float lastTime = glfwGetTime();
+    float currentTime = glfwGetTime();
+    float deltaTime = 0;
 
     //main tick loop
     //--------------
     while (!glfwWindowShouldClose(window))
     {
+        currentTime = glfwGetTime();
+        deltaTime = glfwGetTime() - lastTime;
+        lastTime = currentTime;
+        std::cout << deltaTime << std::endl;
         //input
         processInput(window);
 
@@ -181,7 +188,7 @@ int main()
             deltaOpacity -= .01f;
         }
         deltaOpacity = std::clamp(deltaOpacity, -0.5f, 0.5f);
-        standard_shader.setFloat("deltaOpacity", deltaOpacity);
+        standard_shader.setFloat("deltaOpacity", deltaOpacity * deltaTime * 200);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
