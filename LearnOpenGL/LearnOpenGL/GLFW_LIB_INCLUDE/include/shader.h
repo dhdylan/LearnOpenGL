@@ -7,6 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 class Shader {
 	public:
@@ -124,9 +127,9 @@ class Shader {
 		{
 			glUniform1f(glGetUniformLocation(program_id, name.c_str()), value);
 		}
-		void setTexture2D(const std::string& name, unsigned int id) const
+		void setMat4(const std::string& name, const glm::mat4& value)
 		{
-			glUniform1i(glGetUniformLocation(program_id, name.c_str()), id);
+			glUniformMatrix4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 		}
 };
 

@@ -4,6 +4,10 @@
 #include <shader.h>
 #include <filesystem>
 #include <stb_image.h>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -21,9 +25,7 @@ void processInput(GLFWwindow* window)
 
 int main()
 {
-    
-    //initialization
-    //--------------
+#pragma region initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -47,15 +49,14 @@ int main()
     glViewport(0, 0, 800, 650);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //tell glfw to call this function for the "SetFrameBufferSizeCallback" callback
 
+#pragma endregion
 
-    //set up shader program
-    //-------------------------------------
+#pragma region set up shader
     Shader standard_shader("./Source/shader.vert", "./Source/shader.frag");
     standard_shader.use();
+#pragma endregion
 
-
-    //set up texture
-    //--------------
+#pragma region set up texture
     unsigned int texture, texture2;
     glGenTextures(1, &texture);
     glGenTextures(1, &texture2);
@@ -108,16 +109,15 @@ int main()
     //tell shader to use the textures
     standard_shader.setInt("_texture", 0);
     standard_shader.setInt("_texture2", 1);
+#pragma endregion
 
-
-    //set up vertex data and buffers
-    //------------------------------
+#pragma region vertex data
     float vertices[] = {
         // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // bottom right
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // top left 
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
     };
 
     int indices[] = {
@@ -125,6 +125,9 @@ int main()
         2, 3, 0
     };
 
+#pragma endregion
+
+#pragma region set up vertex buffers
     //generate VBO and VAO objects on the GPU
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -153,54 +156,69 @@ int main()
 
     //unbind
     glBindVertexArray(0);
-
+#pragma endregion
+   
+#pragma region misc update variables
     float deltaOpacity = 0.0f;
-    float lastTime = glfwGetTime();
-    float currentTime = glfwGetTime();
-    float deltaTime = 0;
+    double lastTime = glfwGetTime();
+    double currentTime = glfwGetTime();
+    double deltaTime = 0;
 
-    //main tick loop
-    //--------------
+    glm::mat4 translatedTransform(1.0f);
+    translatedTransform = glm::translate(translatedTransform, glm::vec3(0.5f, -0.5f, 0.0f));
+
+
+#pragma endregion
+  
+#pragma region update
     while (!glfwWindowShouldClose(window))
     {
+        //delta time
         currentTime = glfwGetTime();
         deltaTime = glfwGetTime() - lastTime;
         lastTime = currentTime;
         std::cout << deltaTime << std::endl;
+
         //input
         processInput(window);
 
         //rendering stuff
         //---------------
-        
+
         //make a background
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //now render actual triangle
-        standard_shader.setFloat("time", (float)sin(glfwGetTime()));
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        {
-            deltaOpacity += .01f;
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        {
-            deltaOpacity -= .01f;
-        }
-        deltaOpacity = std::clamp(deltaOpacity, -0.5f, 0.5f);
-        standard_shader.setFloat("deltaOpacity", deltaOpacity * deltaTime * 200);
+        glm::mat4 transform(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        standard_shader.setMat4("transform", transform);
+
         glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
+
+        transform = glm::scale(transform, glm::vec3(((float)sin(currentTime) / 2) + 0.5f, ((float)sin(currentTime) / 2) + 0.5f, ((float)sin(currentTime) / 2) + 0.5f));
+        standard_shader.setMat4("transform", transform);
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         //swap buffers and check and call events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+#pragma endregion
 
+#pragma region termination 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
+#pragma endregion
+
     return 0;
 }

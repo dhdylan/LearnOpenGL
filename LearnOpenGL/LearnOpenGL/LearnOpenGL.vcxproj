@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include;C:\Code\Graphics_Programming\glm\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
