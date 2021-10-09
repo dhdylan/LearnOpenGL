@@ -29,6 +29,9 @@
     <ClInclude Include="GLFW_LIB_INCLUDE\include\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLFW_LIB_INCLUDE\glfw3.lib" />

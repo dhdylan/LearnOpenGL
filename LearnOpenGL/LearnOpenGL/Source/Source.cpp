@@ -7,6 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <input.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -47,6 +48,7 @@ int main()
     // tell openGL what the viewport size is
     glViewport(0, 0, 800, 650);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //tell glfw to call this function for the "SetFrameBufferSizeCallback" callback
+    glfwSetKeyCallback(window, myAPI::Input::key_callback);
     glEnable(GL_DEPTH_TEST);
 
 #pragma endregion
@@ -244,11 +246,9 @@ int main()
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-    glm::mat4 view(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
 
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(85.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 #pragma endregion
 
   
@@ -264,8 +264,21 @@ int main()
         //input
         processInput(window);
 
+
+        glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+        glm::vec3 camera_target(0.0f, 0.0f, 0.0f);
+        glm::vec3 camera_direction = glm::normalize(camera_pos - camera_target);
+        glm::vec3 up(0.0f, 1.0f, 0.0f);
+        glm::vec3 right = glm::normalize(glm::cross(up, camera_direction));
+        glm::vec3 camera_up = glm::normalize(glm::cross(up, camera_direction));
+
         //rendering stuff
         //---------------
+        const float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        glm::mat4 view;
+        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
         standard_shader.setMat4("view", view);
         standard_shader.setMat4("projection", projection);
 
