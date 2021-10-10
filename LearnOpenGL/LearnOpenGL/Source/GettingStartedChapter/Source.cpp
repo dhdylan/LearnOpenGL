@@ -67,7 +67,7 @@ int main()
 #pragma endregion
 
 #pragma region set up shader
-    Shader standard_shader("./Source/shader.vert", "./Source/shader.frag");
+    Shader standard_shader("./Source/GettingStartedChapter/shader.vert", "./Source/GettingStartedChapter/shader.frag");
     standard_shader.use();
 #pragma endregion
 
