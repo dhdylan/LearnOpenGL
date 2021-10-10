@@ -235,14 +235,15 @@ int main()
 #pragma endregion
    
 #pragma region misc update variables
-    double last_time = glfwGetTime();
-    double current_time = glfwGetTime();
-    double delta_time = 0;
+    float last_time = (float)glfwGetTime();
+    float current_time = (float)glfwGetTime();
+    float delta_time = 0;
     float move_speed = 2.5;
     float mouse_sensitivity = 0.5f;
     glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f);
     glm::vec3 camera_dir = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
+    float pitch = 0.0f, yaw = -90.0f;
 #pragma endregion
 
 #pragma region matrices
@@ -267,7 +268,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         //delta time
-        current_time = glfwGetTime();
+        current_time = (float)glfwGetTime();
         delta_time = current_time - last_time;
         last_time = current_time;
 
@@ -301,11 +302,21 @@ int main()
         camera_pos += delta_move;
 
 
-
         glm::vec3 direction;
-        direction.x = cos(glm::radians(input_manager.mouse_offset.x * mouse_sensitivity)) * cos(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
-        direction.y = sin(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
-        direction.z = sin(glm::radians(input_manager.mouse_offset.x * mouse_sensitivity)) * cos(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
+        glm::vec2& mouse_offset = input_manager.mouse_offset;
+        mouse_offset.x *= mouse_sensitivity;
+        mouse_offset.y *= mouse_sensitivity;
+        yaw += mouse_offset.x;
+        pitch += mouse_offset.y;
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+
+        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.y = sin(glm::radians(pitch));
+        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
         camera_dir = glm::normalize(direction);
 
 

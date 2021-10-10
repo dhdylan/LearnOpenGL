@@ -103,8 +103,8 @@ namespace engine
 		//every time the mouse moves this function is called
 		void instance_mouse_callback(GLFWwindow*, double x_pos, double y_pos)
 		{
-			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos); // y is inverted since glfw measures the screen with (0,0) at the top left
-			//mouse_pos = glm::vec2(x_pos, y_pos);
+			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos);
+			mouse_pos = glm::vec2(x_pos, y_pos);
 		}
 		//set the window pointer so you can actually use this object
 		void setWindow(GLFWwindow* _window)
