@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <glm.hpp>
 
 namespace engine
 {
@@ -32,11 +33,13 @@ namespace engine
 	class InputManager
 	{
 	public:
-
 		//variables
 		//---------
 		//a list of all the buttons we care about and their current state
 		std::map<std::string, Button> buttons = {};
+		glm::vec2 mouse_pos;
+		glm::vec2 mouse_offset;
+
 #pragma region static methods
 		//static methods
 		// -------------
@@ -44,6 +47,8 @@ namespace engine
 		static InputManager* getptr();
 		//static method that calls the key_callback implementation on the singleton instance
 		static void static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods);
+		//static method that calls the instance_mouse_callback
+		static void static_mouse_callback(GLFWwindow*, double x_pos, double y_pos);
 #pragma endregion
 
 #pragma region instance methods
@@ -95,6 +100,12 @@ namespace engine
 			std::cout << std::endl;
 
 		}
+		//every time the mouse moves this function is called
+		void instance_mouse_callback(GLFWwindow*, double x_pos, double y_pos)
+		{
+			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos); // y is inverted since glfw measures the screen with (0,0) at the top left
+			//mouse_pos = glm::vec2(x_pos, y_pos);
+		}
 		//set the window pointer so you can actually use this object
 		void setWindow(GLFWwindow* _window)
 		{
@@ -129,10 +140,14 @@ namespace engine
 		}
 		return instance;
 	}
-
 	void InputManager::static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
 	{
 		getptr()->instance_key_callback(window, key_code, scancode, action, mods);
+	}
+
+	void InputManager::static_mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
+	{
+		getptr()->instance_mouse_callback(window, x_pos, y_pos);
 	}
 #pragma endregion
 }

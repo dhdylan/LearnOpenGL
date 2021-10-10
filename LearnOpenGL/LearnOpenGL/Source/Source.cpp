@@ -54,12 +54,14 @@ int main()
     }
     // tell openGL what the viewport size is
     glViewport(0, 0, 800, 650);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glEnable(GL_DEPTH_TEST);
 #pragma endregion
 
 #pragma region set up glfw callbacks
     glfwSetWindowSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, input_manager.static_key_callback);
+    glfwSetCursorPosCallback(window, input_manager.static_mouse_callback);
 #pragma endregion
 
 #pragma region set up shader
@@ -237,8 +239,9 @@ int main()
     double current_time = glfwGetTime();
     double delta_time = 0;
     float move_speed = 2.5;
+    float mouse_sensitivity = 0.5f;
     glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 camera_dir = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 #pragma endregion
 
@@ -277,29 +280,38 @@ int main()
         //forward
         if (input_manager.buttons.at("w").down)
         {
-            delta_move += move_speed * (float)delta_time * camera_front;
+            delta_move += move_speed * (float)delta_time * camera_dir;
         }
         //back
         if (input_manager.buttons.at("s").down)
         {
-            delta_move -= move_speed * (float)delta_time * camera_front;
+            delta_move -= move_speed * (float)delta_time * camera_dir;
         }
         //left
         if (input_manager.buttons.at("a").down)
         {
-            delta_move -= move_speed * (float)delta_time * glm::cross(camera_front, camera_up);
+            delta_move -= move_speed * (float)delta_time * glm::cross(camera_dir, camera_up);
         }
         //right
         if (input_manager.buttons.at("d").down)
         {
-            delta_move += move_speed * (float)delta_time * glm::cross(camera_front, camera_up);
+            delta_move += move_speed * (float)delta_time * glm::cross(camera_dir, camera_up);
         }
 
         camera_pos += delta_move;
 
+
+
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(input_manager.mouse_offset.x * mouse_sensitivity)) * cos(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
+        direction.y = sin(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
+        direction.z = sin(glm::radians(input_manager.mouse_offset.x * mouse_sensitivity)) * cos(glm::radians(input_manager.mouse_offset.y * mouse_sensitivity));
+        camera_dir = glm::normalize(direction);
+
+
         //rendering stuff
         //---------------
-        glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+        glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_dir, camera_up);
         standard_shader.setMat4("view", view);
         standard_shader.setMat4("projection", projection);
 
