@@ -8,6 +8,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 #include <input.h>
+#include <functional>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -25,12 +26,24 @@ void processInput(GLFWwindow* window)
 
 int main()
 {
-#pragma region initialization
+#pragma region setting up input
+    //set up a list of buttons since i dont have any kind of config file type shit set up rn
+    std::vector<engine::Button> buttons = {
+        engine::Button("w", GLFW_KEY_W),
+        engine::Button("a", GLFW_KEY_A),
+        engine::Button("s", GLFW_KEY_S),
+        engine::Button("d", GLFW_KEY_D)
+    };
+    //buttons and window members must be set with setter functions after construction
+    engine::InputManager& input_manager = *engine::InputManager::getptr();
+    input_manager.set_buttons(buttons);
+#pragma endregion
+
+#pragma region glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     //create a new GLFW window
     GLFWwindow* window = glfwCreateWindow(800, 650, "Hello Triangle!", NULL, NULL);
     if (window == NULL) { // error check
@@ -38,6 +51,7 @@ int main()
         glfwTerminate();
         return -1;
     }
+    input_manager.setWindow(window);
     glfwMakeContextCurrent(window); //make this window the "current" window
     // init glad so we can use openGL functions
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -47,10 +61,12 @@ int main()
     }
     // tell openGL what the viewport size is
     glViewport(0, 0, 800, 650);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //tell glfw to call this function for the "SetFrameBufferSizeCallback" callback
-    glfwSetKeyCallback(window, myAPI::Input::key_callback);
     glEnable(GL_DEPTH_TEST);
+#pragma endregion
 
+#pragma region set up glfw callbacks
+    glfwSetWindowSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(window, input_manager.static_key_callback);
 #pragma endregion
 
 #pragma region set up shader
@@ -224,13 +240,10 @@ int main()
 #pragma endregion
    
 #pragma region misc update variables
-    float deltaOpacity = 0.0f;
     double lastTime = glfwGetTime();
     double currentTime = glfwGetTime();
     double deltaTime = 0;
 #pragma endregion
-
-
 
 #pragma region matrices
     glm::vec3 cubePositions[] = {
@@ -246,39 +259,31 @@ int main()
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(85.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 #pragma endregion
 
-  
 #pragma region update
     while (!glfwWindowShouldClose(window))
     {
         //delta time
         currentTime = glfwGetTime();
-        deltaTime = glfwGetTime() - lastTime;
+        deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        std::cout << deltaTime << std::endl;
 
         //input
         processInput(window);
 
-
         glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
-        glm::vec3 camera_target(0.0f, 0.0f, 0.0f);
-        glm::vec3 camera_direction = glm::normalize(camera_pos - camera_target);
+        glm::vec3 camera_front(0.0f, 0.0f, -1.0f);
+        glm::vec3 camera_direction = glm::normalize(camera_pos - camera_front);
         glm::vec3 up(0.0f, 1.0f, 0.0f);
         glm::vec3 right = glm::normalize(glm::cross(up, camera_direction));
         glm::vec3 camera_up = glm::normalize(glm::cross(up, camera_direction));
 
         //rendering stuff
         //---------------
-        const float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-        glm::mat4 view;
-        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+        glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
         standard_shader.setMat4("view", view);
         standard_shader.setMat4("projection", projection);
 
