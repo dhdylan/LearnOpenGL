@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include < glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <shader.h>
@@ -9,6 +9,7 @@
 #include <gtc/type_ptr.hpp>
 #include <input.h>
 #include <functional>
+#include <camera.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -62,6 +63,7 @@ int main()
     glfwSetWindowSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, input_manager.static_key_callback);
     glfwSetCursorPosCallback(window, input_manager.static_mouse_callback);
+    glfwSetScrollCallback(window, input_manager.static_scroll_callback);
 #pragma endregion
 
 #pragma region set up shader
@@ -240,13 +242,12 @@ int main()
     float delta_time = 0;
     float move_speed = 2.5;
     float mouse_sensitivity = 0.5f;
-    glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 camera_dir = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
-    float pitch = 0.0f, yaw = -90.0f;
+    float zoom_speed = 15.0f;
+    engine::Camera camera;
+    
 #pragma endregion
 
-#pragma region matrices
+#pragma region cube positions
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
@@ -259,9 +260,6 @@ int main()
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
-    glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(85.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 #pragma endregion
 
 #pragma region update
@@ -281,49 +279,59 @@ int main()
         //forward
         if (input_manager.buttons.at("w").down)
         {
-            delta_move += move_speed * (float)delta_time * camera_dir;
+            delta_move += move_speed * (float)delta_time * camera.get_forward();
         }
         //back
         if (input_manager.buttons.at("s").down)
         {
-            delta_move -= move_speed * (float)delta_time * camera_dir;
+            delta_move -= move_speed * (float)delta_time * camera.get_forward();
         }
         //left
         if (input_manager.buttons.at("a").down)
         {
-            delta_move -= move_speed * (float)delta_time * glm::cross(camera_dir, camera_up);
+            delta_move += move_speed * (float)delta_time * camera.get_right();
         }
         //right
         if (input_manager.buttons.at("d").down)
         {
-            delta_move += move_speed * (float)delta_time * glm::cross(camera_dir, camera_up);
-        }
+            delta_move -= move_speed * (float)delta_time * camera.get_right();
+        }        
+        camera.set_position(delta_move + camera.get_position());
 
-        camera_pos += delta_move;
 
-
-        glm::vec3 direction;
+        //first person look input and calcs
+        //---------------------------------
+        glm::vec2 new_rotation;
         glm::vec2& mouse_offset = input_manager.mouse_offset;
-        mouse_offset.x *= mouse_sensitivity;
-        mouse_offset.y *= mouse_sensitivity;
-        yaw += mouse_offset.x;
-        pitch += mouse_offset.y;
-        if (pitch > 89.0f)
-            pitch = 89.0f;
-        if (pitch < -89.0f)
-            pitch = -89.0f;
+        new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);
+        new_rotation.x = camera.get_rotation().x - (mouse_offset.y * mouse_sensitivity);
+        if (new_rotation.x > 89.0f)
+            new_rotation.x = 89.0f;
+        if (new_rotation.x < -89.0f)
+            new_rotation.x = -89.0f;
+        camera.set_rotation(new_rotation);
+        input_manager.mouse_offset = glm::vec2(0.0f, 0.0f); // mouse offset has to be reset each frame since the callback is only called when there is mouse input.
 
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-        camera_dir = glm::normalize(direction);
-
+        //zoom input and calcs
+        //--------------------
+        camera.fov -= input_manager.scroll_offset.y * zoom_speed;
+        if (camera.fov < camera.min_fov)
+        {
+            camera.fov = camera.min_fov;
+        }
+        if (camera.fov > camera.max_fov)
+        {
+            camera.fov = camera.max_fov;
+        }
+        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scroll input.
 
         //rendering stuff
         //---------------
-        glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_dir, camera_up);
+        glm::mat4 view = glm::lookAt(camera.get_position(), camera.get_position() + camera.get_forward(), camera.get_up());
         standard_shader.setMat4("view", view);
+        glm::mat4 projection(1.0f);
+        projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x , camera.near_plane, camera.far_plane);
         standard_shader.setMat4("projection", projection);
 
         //make a background

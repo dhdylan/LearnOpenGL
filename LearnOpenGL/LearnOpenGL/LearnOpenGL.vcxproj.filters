@@ -32,6 +32,15 @@
     <ClInclude Include="GLFW_LIB_INCLUDE\include\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\glad\glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLFW_LIB_INCLUDE\glfw3.lib" />
@@ -42,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

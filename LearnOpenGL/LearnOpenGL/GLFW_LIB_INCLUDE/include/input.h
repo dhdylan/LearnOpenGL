@@ -39,6 +39,7 @@ namespace engine
 		std::map<std::string, Button> buttons = {};
 		glm::vec2 mouse_pos;
 		glm::vec2 mouse_offset;
+		glm::vec2 scroll_offset;
 
 #pragma region static methods
 		//static methods
@@ -49,6 +50,8 @@ namespace engine
 		static void static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods);
 		//static method that calls the instance_mouse_callback
 		static void static_mouse_callback(GLFWwindow*, double x_pos, double y_pos);
+		//callback for the scroll wheel
+		static void static_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll);
 #pragma endregion
 
 #pragma region instance methods
@@ -106,6 +109,12 @@ namespace engine
 			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos);
 			mouse_pos = glm::vec2(x_pos, y_pos);
 		}
+		//every time the scroll wheel is "rolled" or whatever you want to call it, this is called. keep in mind that this is not called every frame, as are the rest of the functions. it is only called when the event is raised.
+		void instance_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll)
+		{
+			scroll_offset.x = x_scroll;
+			scroll_offset.y = y_scroll;
+		}
 		//set the window pointer so you can actually use this object
 		void setWindow(GLFWwindow* _window)
 		{
@@ -148,6 +157,11 @@ namespace engine
 	void InputManager::static_mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
 	{
 		getptr()->instance_mouse_callback(window, x_pos, y_pos);
+	}
+
+	void InputManager::static_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll)
+	{
+		getptr()->instance_scroll_callback(window, x_scroll, y_scroll);
 	}
 #pragma endregion
 }

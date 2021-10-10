@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include;C:\Code\Graphics_Programming\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Dylan\Source\Repos\LearnOpenGL\glm\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE;C:\Code\Graphics_Programming\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -151,10 +151,13 @@
     <ClCompile Include="Source\STB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\camera.h" />
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\glad\glad.h" />
     <ClInclude Include="GLFW_LIB_INCLUDE\include\input.h" />
     <ClInclude Include="GLFW_LIB_INCLUDE\include\shader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="GLFW_LIB_INCLUDE\include\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLFW_LIB_INCLUDE\glfw3.lib">
@@ -166,6 +169,7 @@
     <None Include="Source\shader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
