@@ -19,13 +19,11 @@ namespace engine
 		bool down = false;
 		//button was released this frame
 		bool up = false;
-		std::string name;
 		//glfw key code
 		int key_code;
 
-		Button(std::string _name, int _key_code)
+		Button(int _key_code)
 		{
-			name = _name;
 			key_code = _key_code;
 		}
 	};
@@ -34,6 +32,11 @@ namespace engine
 	class InputManager
 	{
 	public:
+
+		//variables
+		//---------
+		//a list of all the buttons we care about and their current state
+		std::map<std::string, Button> buttons = {};
 #pragma region static methods
 		//static methods
 		// -------------
@@ -47,53 +50,47 @@ namespace engine
 		//instance methods
 		//----------------
 		//adds a button to our buttons vector
-		void add_button(std::string& name, int glfw_key_macro)
+		void add_button(std::string name, int glfw_key_macro)
 		{
-			button_states.push_back(Button(name, glfw_key_macro));
-		}
-		void set_buttons(std::vector<Button> _buttons)
-		{
-			button_states = _buttons;
+			buttons.insert({ name, Button(glfw_key_macro) });
 		}
 		//every time a key is pressed and GLFW raises the key pressed event, this function gets called
 		void instance_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
 		{
-			//check each of the buttons that are in our button_names map and if the code of
-			//the key that raised the event matches one of our buttons...
-			for (auto iter = button_states.begin(); iter != button_states.end(); iter++)
+			for (auto iter = buttons.begin(); iter != buttons.end(); iter++)
 			{
-				if (iter->key_code == key_code)
+				if (iter->second.key_code == key_code)
 				{
 					//then set it's up/down/held states accordingly
 					//if the button was held down at all this frame
 					if (action == GLFW_PRESS || action == GLFW_REPEAT)
 					{
 						//if it wasnt pressed down last frame
-						if (!iter->down)
+						if (!iter->second.down)
 						{
-							iter->down = true;
+							iter->second.down = true;
 						}
 						//it was pressed down last frame, so set down back to false
 						else
 						{
-							iter->down = false;
+							iter->second.down = false;
 						}
-						iter->held = true;
+						iter->second.held = true;
 					}
 					//if it was released this frame
 					else if (action == GLFW_RELEASE)
 					{
-						iter->up = true;
-						iter->held = false;
+						iter->second.up = true;
+						iter->second.held = false;
 						//pretty sure this is impossible but fuck it
-						iter->down = false;
+						iter->second.down = false;
 					}
 				}
 			}
 
-			for (auto& button : button_states)
+			for (auto& button : buttons)
 			{
-				std::cout << button.name << " :: " << button.down << std::endl;
+				std::cout << button.first << " :: " << button.second.down << std::endl;
 			}
 			std::cout << std::endl;
 
@@ -108,10 +105,8 @@ namespace engine
 	private:
 #pragma region variables
 		//variables
-//---------
+		//---------
 		GLFWwindow* window;
-		//a list of all the buttons we care about and their current state
-		std::vector<Button> button_states = {};
 		inline static InputManager* instance;
 #pragma endregion
 

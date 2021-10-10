@@ -16,27 +16,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
-
 int main()
 {
 #pragma region setting up input
     //set up a list of buttons since i dont have any kind of config file type shit set up rn
-    std::vector<engine::Button> buttons = {
-        engine::Button("w", GLFW_KEY_W),
-        engine::Button("a", GLFW_KEY_A),
-        engine::Button("s", GLFW_KEY_S),
-        engine::Button("d", GLFW_KEY_D)
+    std::map<std::string, engine::Button> buttons = {
+        {"esc", engine::Button(GLFW_KEY_ESCAPE)},
+        {"w", engine::Button(GLFW_KEY_W)},
+        {"a", engine::Button(GLFW_KEY_A)},
+        {"s", engine::Button(GLFW_KEY_S)},
+        {"d", engine::Button(GLFW_KEY_D)}
     };
     //buttons and window members must be set with setter functions after construction
     engine::InputManager& input_manager = *engine::InputManager::getptr();
-    input_manager.set_buttons(buttons);
+    input_manager.buttons = buttons;
 #pragma endregion
 
 #pragma region glfw initialization
@@ -240,9 +233,13 @@ int main()
 #pragma endregion
    
 #pragma region misc update variables
-    double lastTime = glfwGetTime();
-    double currentTime = glfwGetTime();
-    double deltaTime = 0;
+    double last_time = glfwGetTime();
+    double current_time = glfwGetTime();
+    double delta_time = 0;
+    float move_speed = 2.5;
+    glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 #pragma endregion
 
 #pragma region matrices
@@ -267,19 +264,38 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         //delta time
-        currentTime = glfwGetTime();
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
+        current_time = glfwGetTime();
+        delta_time = current_time - last_time;
+        last_time = current_time;
 
-        //input
-        processInput(window);
+        //check if we want to close window and end program.
+        glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
 
-        glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
-        glm::vec3 camera_front(0.0f, 0.0f, -1.0f);
-        glm::vec3 camera_direction = glm::normalize(camera_pos - camera_front);
-        glm::vec3 up(0.0f, 1.0f, 0.0f);
-        glm::vec3 right = glm::normalize(glm::cross(up, camera_direction));
-        glm::vec3 camera_up = glm::normalize(glm::cross(up, camera_direction));
+        //movement input
+        //--------------
+        glm::vec3 delta_move(0.0f, 0.0f, 0.0f);
+        //forward
+        if (input_manager.buttons.at("w").down)
+        {
+            delta_move += move_speed * (float)delta_time * camera_front;
+        }
+        //back
+        if (input_manager.buttons.at("s").down)
+        {
+            delta_move -= move_speed * (float)delta_time * camera_front;
+        }
+        //left
+        if (input_manager.buttons.at("a").down)
+        {
+            delta_move -= move_speed * (float)delta_time * glm::cross(camera_front, camera_up);
+        }
+        //right
+        if (input_manager.buttons.at("d").down)
+        {
+            delta_move += move_speed * (float)delta_time * glm::cross(camera_front, camera_up);
+        }
+
+        camera_pos += delta_move;
 
         //rendering stuff
         //---------------
@@ -298,7 +314,7 @@ int main()
             glm::mat4 model(1.0f);
             model = glm::translate(model, cubePositions[i]);
             float angle = 20 * i;
-            model = glm::rotate(model, (float)glm::radians(angle) + (float)currentTime, glm::vec3(1.0f, 0.3, 0.5f));
+            model = glm::rotate(model, (float)glm::radians(angle) + (float)current_time, glm::vec3(1.0f, 0.3, 0.5f));
             standard_shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
