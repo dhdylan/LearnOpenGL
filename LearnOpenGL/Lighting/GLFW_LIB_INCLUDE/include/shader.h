@@ -114,6 +114,11 @@ class Shader {
 			glUseProgram(program_id);
 		}
 
+		static void unuse()
+		{
+			glUseProgram(0);
+		}
+
 		//functions to set uniforms
 		void setBool(const std::string& name, bool value) const
 		{

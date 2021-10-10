@@ -70,7 +70,7 @@ int main()
 
 #pragma region set up shader
     Shader standard_shader("./Source/Lighting/shader.vert", "./Source/Lighting/shader.frag");
-    standard_shader.use();
+    Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
 #pragma endregion
 
 #pragma region set up texture
@@ -124,8 +124,10 @@ int main()
     stbi_image_free(data);
 
     //tell shader to use the textures
+    standard_shader.use();
     standard_shader.setInt("_texture", 0);
     standard_shader.setInt("_texture2", 1);
+    standard_shader.unuse();
 #pragma endregion
 
 #pragma region vertex data
@@ -177,15 +179,22 @@ int main()
 
 #pragma region set up vertex buffers
     //generate VBO and VAO objects on the GPU
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO, lightVAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO); //bind vertex array object so all subsequent VBO calls will be stored with this VAO
-
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO); //bind this buffer as the current GL_ARRAY_BUFFER object
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW); //give that buffer it's data
-
     //set up vertex attributes
+    //position
+    glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
+
+    //for light source cube
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
     //position
     glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
@@ -207,20 +216,21 @@ int main()
     standard_shader.use();
     standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     standard_shader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+    standard_shader.unuse();
     
 #pragma endregion
 
 #pragma region update
     while (!glfwWindowShouldClose(window))
     {
+        //check if we want to close window and end program.
+        glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
         //delta time
         current_time = (float)glfwGetTime();
         delta_time = current_time - last_time;
         last_time = current_time;
 
-        //check if we want to close window and end program.
-        glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
-
+#pragma region input processing
         //movement input
         //--------------
         glm::vec3 delta_move(0.0f, 0.0f, 0.0f);
@@ -282,25 +292,44 @@ int main()
         {
             camera.fov = camera.max_fov;
         }
-        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scroll input.
+        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scroll input.  
+#pragma endregion
 
+#pragma region matrices
         //rendering stuff
         //---------------
-        glm::mat4 view = glm::lookAt(camera.get_position(), camera.get_position() + camera.get_forward(), camera.get_up());
-        standard_shader.setMat4("view", view);
-        glm::mat4 projection(1.0f);
-        projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x , camera.near_plane, camera.far_plane);
-        standard_shader.setMat4("projection", projection);
+        glm::mat4 camera_view = camera.get_view_matrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
+        glm::mat4 cube_model(1.0f);
+        cube_model = glm::translate(cube_model, glm::vec3(-1.0f, 0.0f, 0.0));
+        glm::mat4 light_model(1.0f);
+        light_model = glm::translate(light_model, glm::vec3(1.0f, 0.0f, 0.0));
+#pragma endregion
 
-        //make a background
+#pragma region draw calls
+        //draw calls
+        //----------
+        //make background black and clear the buffers
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //now render actual triangle
+        standard_shader.use();
+        standard_shader.setMat4("model", cube_model);
+        standard_shader.setMat4("view", camera_view);
+        standard_shader.setMat4("projection", projection);
+        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, sin(current_time) / 4 + 0.75f));
         glBindVertexArray(VAO);
-        glm::mat4 model(1.0f);
-        standard_shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        light_cube_shader.use();
+        light_cube_shader.setMat4("model", light_model);
+        light_cube_shader.setMat4("view", camera_view);
+        light_cube_shader.setMat4("projection", projection);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        light_cube_shader.unuse();
+#pragma endregion
+
         //swap buffers and check and call events
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -310,7 +339,6 @@ int main()
 #pragma region termination 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
 #pragma endregion
