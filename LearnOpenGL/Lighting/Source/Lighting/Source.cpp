@@ -203,6 +203,13 @@ int main()
     //unbind
     glBindVertexArray(0);
 #pragma endregion
+
+#pragma region cube positions
+    glm::vec3 cube_positions[] = {
+        glm::vec3(-2.0f, -1.5f, -1.0f),
+        glm::vec3(-.5f, 1.5f, 1.5f)
+    };
+#pragma endregion
    
 #pragma region misc update variables
     float last_time = (float)glfwGetTime();
@@ -303,8 +310,9 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
         glm::mat4 cube_model(1.0f);
         cube_model = glm::translate(cube_model, glm::vec3(-1.0f, 0.0f, 0.0));
+        cube_model = glm::rotate(cube_model, current_time, glm::normalize(glm::vec3(1.0f, 0.9f, 0.1f)));
         glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(1.0f, sin(current_time), cos(current_time));
+        glm::vec3 light_pos(1.0f, sin(current_time) * 3, cos(current_time) * 2);
         light_model = glm::translate(light_model, light_pos);
 #pragma endregion
 
@@ -319,10 +327,17 @@ int main()
         standard_shader.setMat4("model", cube_model);
         standard_shader.setMat4("view", camera_view);
         standard_shader.setMat4("projection", projection);
-        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, sin(current_time) / 4 + 0.75f));
+        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         standard_shader.setVec3("lightPos", light_pos);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (auto i = 0; i < 2; i++)
+        {
+            glm::mat4 model(1.0f);
+            glm::translate(model, cube_positions[i]);
+            standard_shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         light_cube_shader.use();
         light_cube_shader.setMat4("model", light_model);
