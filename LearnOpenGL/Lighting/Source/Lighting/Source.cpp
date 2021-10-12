@@ -312,7 +312,7 @@ int main()
         cube_model = glm::translate(cube_model, glm::vec3(-1.0f, 0.0f, 0.0));
         cube_model = glm::rotate(cube_model, current_time, glm::normalize(glm::vec3(1.0f, 0.9f, 0.1f)));
         glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(1.0f, sin(current_time) * 3, cos(current_time) * 2);
+        glm::vec3 light_pos(1.0f, sin(current_time/10), cos(current_time/10));
         light_model = glm::translate(light_model, light_pos);
 #pragma endregion
 
@@ -327,7 +327,8 @@ int main()
         standard_shader.setMat4("model", cube_model);
         standard_shader.setMat4("view", camera_view);
         standard_shader.setMat4("projection", projection);
-        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 0.7f, 0.3f));
+        standard_shader.setVec3("cameraPos", camera.get_position());
         standard_shader.setVec3("lightPos", light_pos);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
