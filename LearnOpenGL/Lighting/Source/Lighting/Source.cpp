@@ -203,13 +203,6 @@ int main()
     //unbind
     glBindVertexArray(0);
 #pragma endregion
-
-#pragma region cube positions
-    glm::vec3 cube_positions[] = {
-        glm::vec3(-2.0f, -1.5f, -1.0f),
-        glm::vec3(-.5f, 1.5f, 1.5f)
-    };
-#pragma endregion
    
 #pragma region misc update variables
     float last_time = (float)glfwGetTime();
@@ -222,8 +215,8 @@ int main()
 
     //Shader colors
     standard_shader.use();
-    standard_shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    standard_shader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+    standard_shader.setVec3("u_lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    standard_shader.setVec3("u_objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
     standard_shader.unuse();
     
 #pragma endregion
@@ -309,10 +302,10 @@ int main()
         glm::mat4 camera_view = camera.get_view_matrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
         glm::mat4 cube_model(1.0f);
-        cube_model = glm::translate(cube_model, glm::vec3(-1.0f, 0.0f, 0.0));
-        cube_model = glm::rotate(cube_model, current_time, glm::normalize(glm::vec3(1.0f, 0.9f, 0.1f)));
+        cube_model = glm::translate(cube_model, glm::vec3(-2.0f, 0, 1.0f));
+        cube_model = glm::rotate(cube_model, current_time, glm::vec3(0.2f, 0.5f, 0.9f));
         glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(1.0f, sin(current_time/10), cos(current_time/10));
+        glm::vec3 light_pos(1.0f, sin(current_time), cos(current_time));
         light_model = glm::translate(light_model, light_pos);
 #pragma endregion
 
@@ -324,26 +317,28 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         standard_shader.use();
-        standard_shader.setMat4("model", cube_model);
-        standard_shader.setMat4("view", camera_view);
-        standard_shader.setMat4("projection", projection);
-        standard_shader.setVec3("lightColor", glm::vec3(1.0f, 0.7f, 0.3f));
-        standard_shader.setVec3("cameraPos", camera.get_position());
-        standard_shader.setVec3("lightPos", light_pos);
+        standard_shader.setMat4("u_model", cube_model);
+        standard_shader.setMat4("u_view", camera_view);
+        standard_shader.setMat4("u_projection", projection);
+        standard_shader.setVec3("u_lightColor", glm::vec3(1.0f, 0.7f, 0.3f));
+        standard_shader.setVec3("u_cameraPos", camera.get_position());
+        standard_shader.setVec3("u_lightPos", light_model * glm::vec4(light_pos, 1.0f));
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        for (auto i = 0; i < 2; i++)
+
+        //draw a couple more
+        /*for (auto i = 0; i < 2; i++)
         {
             glm::mat4 model(1.0f);
             glm::translate(model, cube_positions[i]);
             standard_shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        }*/
 
         light_cube_shader.use();
-        light_cube_shader.setMat4("model", light_model);
-        light_cube_shader.setMat4("view", camera_view);
-        light_cube_shader.setMat4("projection", projection);
+        light_cube_shader.setMat4("u_model", light_model);
+        light_cube_shader.setMat4("u_view", camera_view);
+        light_cube_shader.setMat4("u_projection", projection);
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         light_cube_shader.unuse();
