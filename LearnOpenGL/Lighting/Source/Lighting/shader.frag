@@ -22,11 +22,11 @@ void main()
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
     vec3 lightDir = normalize(lightPos - fragPos);
-    //vec3 viewDir = normalize(-FragPos);
-    //vec3 reflectedLightDir = reflect(-lightDir, norm);
+    vec3 viewDir = normalize(-fragPos);
+    vec3 reflectedLightDir = reflect(-lightDir, normal);
 
-    //float spec = pow(max(dot(viewDir, reflectedLightDir), 0.0), 32);
-    //vec3 specular = specularStrength * spec * lightColor;  
+    float spec = pow(max(dot(viewDir, reflectedLightDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * u_lightColor;  
 
     //use the max function so if the dot product is negative, we just set it to zero.
     //get the dot product of the normal vector and the light direction;
@@ -34,6 +34,6 @@ void main()
     float diff = max(dot(normal, lightDir), 0.0); // range between 0 and 1
     vec3 diffuse = diff * u_lightColor;
 
-    vec3 result = (ambient + diffuse) * u_objectColor;
+    vec3 result = (ambient + diffuse + specular) * u_objectColor;
     fragColor = vec4(result, 1.0);
 }
