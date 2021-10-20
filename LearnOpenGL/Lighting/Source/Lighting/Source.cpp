@@ -305,7 +305,7 @@ int main()
         cube_model = glm::translate(cube_model, glm::vec3(-2.0f, 0, 1.0f));
         cube_model = glm::rotate(cube_model, current_time, glm::vec3(0.2f, 0.5f, 0.9f));
         glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(1.0f, sin(current_time), cos(current_time));
+        glm::vec3 light_pos(1.0f, 1.0f, 1.0f);
         light_model = glm::translate(light_model, light_pos);
 #pragma endregion
 
@@ -320,9 +320,15 @@ int main()
         standard_shader.setMat4("u_model", cube_model);
         standard_shader.setMat4("u_view", camera_view);
         standard_shader.setMat4("u_projection", projection);
-        standard_shader.setVec3("u_lightColor", glm::vec3(1.0f, 0.7f, 0.3f));
         standard_shader.setVec3("u_cameraPos", camera.get_position());
-        standard_shader.setVec3("u_lightPos", light_model * glm::vec4(light_pos, 1.0f));
+        standard_shader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+        standard_shader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+        standard_shader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+        standard_shader.setFloat("material.shininess", 32.0f);
+        standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
+        standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
+        standard_shader.setVec3("light.specular", glm::vec3(1.0f));
+        standard_shader.setVec3("light.position", light_pos);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
