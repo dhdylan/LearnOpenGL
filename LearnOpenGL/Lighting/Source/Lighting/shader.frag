@@ -1,7 +1,6 @@
 #version 330 core
 
 struct Material {
-    vec3 ambient;
     vec3 diffuse;
     vec3 specular;
     float shininess;
@@ -28,7 +27,7 @@ out vec4 fragColor;
 void main()
 {
     //ambient light
-    vec3 ambient = light.ambient * material.ambient;
+    vec3 ambient = light.ambient * material.diffuse;
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
@@ -36,8 +35,8 @@ void main()
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
-    float _dot = pow(max(dot(viewDir, reflectedLightDir), 0.0), material.shininess  );
-    vec3 specular = light.specular * material.specular * _dot;  
+    float _dot = pow(max(dot(viewDir, reflectedLightDir), 0.0), material.shininess);
+    vec3 specular = light.specular * material.specular * _dot;
 
     //use the max function so if the dot product is negative, we just set it to zero.
     //get the dot product of the normal vector and the light direction;

@@ -321,10 +321,11 @@ int main()
         standard_shader.setMat4("u_view", camera_view);
         standard_shader.setMat4("u_projection", projection);
         standard_shader.setVec3("u_cameraPos", camera.get_position());
-        standard_shader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-        standard_shader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+
+        standard_shader.setVec3("material.diffuse", glm::vec3(sin(current_time), sin(current_time + 3.14f * 2 / 3), sin(current_time + 3.14f / 3)));
         standard_shader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
         standard_shader.setFloat("material.shininess", 32.0f);
+
         standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
