@@ -64,6 +64,9 @@
     <Image Include="container2_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="matrix.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLFW_LIB_INCLUDE\glfw3.lib" />

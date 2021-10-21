@@ -3,6 +3,7 @@
 struct Material {
     sampler2D diffuse_map;
     sampler2D specular_map;
+    sampler2D emission_map;
     float shininess;
 }; 
 
@@ -45,6 +46,8 @@ void main()
     _dot = max(dot(normal, lightDir), 0.0); // range between 0 and 1
     vec3 diffuse = light.diffuse * vec3(texture(material.diffuse_map, texCoords)) * _dot;
 
-    vec3 result = (ambient + diffuse + specular);
+    vec3 emission = vec3(texture(material.emission_map, texCoords));
+
+    vec3 result = (ambient + diffuse + specular + emission);
     fragColor = vec4(result, 1.0);
 }
