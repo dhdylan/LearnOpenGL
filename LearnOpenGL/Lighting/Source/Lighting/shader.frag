@@ -1,9 +1,8 @@
 #version 330 core
 
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    sampler2D diffuse_map;
+    sampler2D specular_map;
     float shininess;
 }; 
 
@@ -16,6 +15,7 @@ struct Light {
 
 in vec3 normal;
 in vec3 fragPos;
+in vec2 texCoords;
 
 uniform mat4 u_view;
 uniform mat4 u_model;
@@ -28,7 +28,7 @@ out vec4 fragColor;
 void main()
 {
     //ambient light
-    vec3 ambient = light.ambient * material.ambient;
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse_map, texCoords));
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
@@ -36,14 +36,14 @@ void main()
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
-    float _dot = pow(max(dot(viewDir, reflectedLightDir), 0.0), material.shininess  );
-    vec3 specular = light.specular * material.specular * _dot;  
+    float _dot = pow(max(dot(viewDir, reflectedLightDir), 0.0), material.shininess);
+    vec3 specular = light.specular * vec3(texture(material.specular_map, texCoords)) * _dot;
 
     //use the max function so if the dot product is negative, we just set it to zero.
     //get the dot product of the normal vector and the light direction;
     //the closer these two vectors are to being at a 90 degree angle from eachother, the closer "diff" will be to one
     _dot = max(dot(normal, lightDir), 0.0); // range between 0 and 1
-    vec3 diffuse = light.diffuse * material.diffuse * _dot;
+    vec3 diffuse = light.diffuse * vec3(texture(material.diffuse_map, texCoords)) * _dot;
 
     vec3 result = (ambient + diffuse + specular);
     fragColor = vec4(result, 1.0);

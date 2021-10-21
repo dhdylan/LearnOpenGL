@@ -166,6 +166,8 @@
   <ItemGroup>
     <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
+    <Image Include="container2.png" />
+    <Image Include="container2_specular.png" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLFW_LIB_INCLUDE\glfw3.lib" />
