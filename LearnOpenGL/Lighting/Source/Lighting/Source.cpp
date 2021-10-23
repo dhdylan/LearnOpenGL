@@ -28,7 +28,11 @@ int main()
         {"s", engine::Button(GLFW_KEY_S)},
         {"d", engine::Button(GLFW_KEY_D)},
         {"q", engine::Button(GLFW_KEY_Q)},
-        {"e", engine::Button(GLFW_KEY_E)}
+        {"e", engine::Button(GLFW_KEY_E)},
+        {"right", engine::Button(GLFW_KEY_RIGHT)},
+        {"left", engine::Button(GLFW_KEY_LEFT)},
+        {"up", engine::Button(GLFW_KEY_UP)},
+        {"down", engine::Button(GLFW_KEY_DOWN)}
     };
     //buttons and window members must be set with setter functions after construction
     engine::InputManager& input_manager = *engine::InputManager::getptr();
@@ -232,6 +236,7 @@ int main()
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
     engine::Camera camera;
+    glm::mat4 light_rotation(1.0f);
 
     //Shader colors
     standard_shader.use();
@@ -325,6 +330,14 @@ int main()
         glm::mat4 light_model(1.0f);
         glm::vec3 light_pos(1.0f, 1.0f, 1.0f);
         light_model = glm::translate(light_model, light_pos);
+        light_rotation = glm::rotate(
+            light_rotation,
+            (input_manager.buttons.at("right").held - input_manager.buttons.at("left").held) * move_speed * delta_time,
+            glm::vec3(0.0f, 0.0f, 1.0f));
+        light_rotation = glm::rotate(
+            light_rotation,
+            (input_manager.buttons.at("up").held - input_manager.buttons.at("down").held) * move_speed * delta_time,
+            glm::vec3(0.0f, 1.0f, 0.0f));
 #pragma endregion
 
 #pragma region draw calls
@@ -347,7 +360,7 @@ int main()
         standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
-        standard_shader.setVec3("light.position", light_pos);
+        standard_shader.setVec3("light.direction", glm::vec3(light_rotation * glm::vec4(1.0)));
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 

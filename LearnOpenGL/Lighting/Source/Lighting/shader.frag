@@ -8,7 +8,7 @@ struct Material {
 }; 
 
 struct Light {
-    vec3 position;
+    vec3 direction;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -33,7 +33,7 @@ void main()
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
-    vec3 lightDir = normalize(vec3(u_view * vec4(light.position, 1.0)) - fragPos);
+    vec3 lightDir = normalize(-light.direction);
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
