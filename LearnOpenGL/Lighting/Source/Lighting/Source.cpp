@@ -75,6 +75,7 @@ int main()
 #pragma region set up shader
     Shader standard_shader("./Source/Lighting/shader.vert", "./Source/Lighting/shader.frag");
     Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
+    Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
 #pragma endregion
 
 #pragma region set up texture
@@ -196,6 +197,19 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
+
+    float axes[] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f
+    };
+
+    unsigned int axes_indices[] = {
+        0, 1,
+        0, 2,
+        0, 3
+    };
 #pragma endregion
 
 #pragma region set up vertex buffers
@@ -224,6 +238,21 @@ int main()
     glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); //tell openGL how the vertex data is supposed to be read
 
+    //3d axes objects
+    unsigned int axesVAO, axesVBO, axesEBO;
+    glGenVertexArrays(1, &axesVAO);
+    glBindVertexArray(axesVAO);
+    glGenBuffers(1, &axesVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, axesVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(axes), axes, GL_STATIC_DRAW);
+    glGenBuffers(1, &axesEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axes_indices), axes_indices, GL_STATIC_DRAW);
+
+    //vertex attrib for both color and position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+
     //unbind
     glBindVertexArray(0);
 #pragma endregion
@@ -236,7 +265,7 @@ int main()
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
     engine::Camera camera;
-    glm::mat4 light_rotation(1.0f);
+    glm::vec3 light_direction(1.0f);
 
     //Shader colors
     standard_shader.use();
@@ -330,14 +359,20 @@ int main()
         glm::mat4 light_model(1.0f);
         glm::vec3 light_pos(1.0f, 1.0f, 1.0f);
         light_model = glm::translate(light_model, light_pos);
-        light_rotation = glm::rotate(
-            light_rotation,
+        glm::mat4 light_rotation_matrix(1.0f);
+
+        light_rotation_matrix = glm::rotate(
+            light_rotation_matrix,
             (input_manager.buttons.at("right").held - input_manager.buttons.at("left").held) * move_speed * delta_time,
             glm::vec3(0.0f, 0.0f, 1.0f));
-        light_rotation = glm::rotate(
-            light_rotation,
+        light_rotation_matrix = glm::rotate(
+            light_rotation_matrix,
             (input_manager.buttons.at("up").held - input_manager.buttons.at("down").held) * move_speed * delta_time,
             glm::vec3(0.0f, 1.0f, 0.0f));
+        light_direction = glm::vec3(light_rotation_matrix * glm::vec4(light_direction, 1.0f));
+        glm::mat4 axes_model(1.0f);
+
+        
 #pragma endregion
 
 #pragma region draw calls
@@ -346,6 +381,20 @@ int main()
         //make background black and clear the buffers
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        axes_shader.use();
+        axes_shader.setMat4("u_model", cube_model);
+        axes_shader.setMat4("u_view", camera_view);
+        axes_shader.setMat4("u_projection", projection);
+        axes_shader.setFloat("scale", 10.0f);
+        glBindVertexArray(axesVAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
+        glLineWidth(2.0f);
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+
+        axes_shader.setMat4("u_model", glm::mat4(1.0f));
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+
 
         standard_shader.use();
         standard_shader.setMat4("u_model", cube_model);
@@ -360,7 +409,7 @@ int main()
         standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
-        standard_shader.setVec3("light.direction", glm::vec3(light_rotation * glm::vec4(1.0)));
+        standard_shader.setVec3("light.direction", light_direction);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -373,13 +422,13 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }*/
 
-        light_cube_shader.use();
-        light_cube_shader.setMat4("u_model", light_model);
-        light_cube_shader.setMat4("u_view", camera_view);
-        light_cube_shader.setMat4("u_projection", projection);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        light_cube_shader.unuse();
+        //light_cube_shader.use();
+        //light_cube_shader.setMat4("u_model", light_model);
+        //light_cube_shader.setMat4("u_view", camera_view);
+        //light_cube_shader.setMat4("u_projection", projection);
+        //glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        //light_cube_shader.unuse();
 #pragma endregion
 
         //swap buffers and check and call events

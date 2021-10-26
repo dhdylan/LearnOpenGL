@@ -33,7 +33,7 @@ void main()
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = mat3(transpose(inverse(u_view * u_model))) * normalize(-light.direction);
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
