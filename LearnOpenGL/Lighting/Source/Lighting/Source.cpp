@@ -353,14 +353,18 @@ int main()
 #pragma region matrices
         glm::mat4 camera_view = camera.get_view_matrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
+        
+        
         glm::mat4 cube_model(1.0f);
         cube_model = glm::translate(cube_model, glm::vec3(-2.0f, 0, 1.0f));
         cube_model = glm::rotate(cube_model, current_time / 8, glm::vec3(0.2f, 0.5f, 0.9f));
-        glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(1.0f, 1.0f, 1.0f);
-        light_model = glm::translate(light_model, light_pos);
-        glm::mat4 light_rotation_matrix(1.0f);
 
+
+        glm::mat4 light_model(1.0f);
+        glm::vec3 light_pos(0.0f, -3.0f, 0.0f);
+        light_model = glm::translate(light_model, light_pos);
+        
+        glm::mat4 light_rotation_matrix(1.0f);
         light_rotation_matrix = glm::rotate(
             light_rotation_matrix,
             (input_manager.buttons.at("right").held - input_manager.buttons.at("left").held) * move_speed * delta_time,
@@ -370,9 +374,10 @@ int main()
             (input_manager.buttons.at("up").held - input_manager.buttons.at("down").held) * move_speed * delta_time,
             glm::vec3(0.0f, 1.0f, 0.0f));
         light_direction = glm::vec3(light_rotation_matrix * glm::vec4(light_direction, 1.0f));
-        glm::mat4 axes_model(1.0f);
+        light_model = glm::lookAt(light_pos, light_pos + light_direction, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        
+
+        glm::mat4 axes_model(1.0f);
 #pragma endregion
 
 #pragma region draw calls
@@ -389,10 +394,14 @@ int main()
         axes_shader.setFloat("scale", 10.0f);
         glBindVertexArray(axesVAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
+        
         glLineWidth(2.0f);
-        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
 
         axes_shader.setMat4("u_model", glm::mat4(1.0f));
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+        
+        axes_shader.setMat4("u_model", light_model);
         glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
 
 

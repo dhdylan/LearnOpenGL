@@ -48,6 +48,6 @@ void main()
 
     vec3 emission = vec3(texture(material.emission_map, texCoords));
 
-    vec3 result = (ambient + diffuse + specular + emission);
+    vec3 result = (ambient + diffuse + specular);
     fragColor = vec4(result, 1.0);
 }
