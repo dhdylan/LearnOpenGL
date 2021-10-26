@@ -36,6 +36,7 @@ int main()
     };
     //buttons and window members must be set with setter functions after construction
     engine::InputManager& input_manager = *engine::InputManager::getptr();
+    input_manager.first_frame = true;
     input_manager.buttons = buttons;
 #pragma endregion
 
@@ -267,11 +268,21 @@ int main()
     engine::Camera camera;
     glm::vec3 light_direction(1.0f);
 
-    //Shader colors
     standard_shader.use();
-    standard_shader.setVec3("u_lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    standard_shader.setVec3("u_objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-    standard_shader.unuse();
+
+    // positions all containers
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
     
 #pragma endregion
 
@@ -324,6 +335,7 @@ int main()
 
         //first person look input and calcs
         //---------------------------------
+        
         glm::vec2 new_rotation;
         glm::vec2& mouse_offset = input_manager.mouse_offset;
         new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);

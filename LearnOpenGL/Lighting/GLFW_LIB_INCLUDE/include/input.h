@@ -40,6 +40,7 @@ namespace engine
 		glm::vec2 mouse_pos;
 		glm::vec2 mouse_offset;
 		glm::vec2 scroll_offset;
+		bool first_frame;
 
 #pragma region static methods
 		//static methods
@@ -106,6 +107,12 @@ namespace engine
 		//every time the mouse moves this function is called
 		void instance_mouse_callback(GLFWwindow*, double x_pos, double y_pos)
 		{
+			if (first_frame)
+			{
+				mouse_pos.x = x_pos;
+				mouse_pos.y = y_pos;
+				first_frame = false;
+			}
 			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos);
 			mouse_pos = glm::vec2(x_pos, y_pos);
 		}
@@ -146,6 +153,7 @@ namespace engine
 		if (instance == nullptr)
 		{
 			instance = new InputManager();
+			instance->first_frame = true;
 		}
 		return instance;
 	}
