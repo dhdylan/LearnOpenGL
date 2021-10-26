@@ -271,7 +271,7 @@ int main()
     standard_shader.use();
 
     // positions all containers
-    glm::vec3 cubePositions[] = {
+    glm::vec3 cube_positions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -394,20 +394,9 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        axes_shader.use();
-        axes_shader.setMat4("u_model", cube_model);
-        axes_shader.setMat4("u_view", camera_view);
-        axes_shader.setMat4("u_projection", projection);
-        axes_shader.setFloat("scale", 10.0f);
-        glBindVertexArray(axesVAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
-        glLineWidth(2.0f);
-        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
 
-        axes_shader.setMat4("u_model", glm::mat4(1.0f));
-        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
-
-
+        //cube drawing
+        //------------
         standard_shader.use();
         standard_shader.setMat4("u_model", cube_model);
         standard_shader.setMat4("u_view", camera_view);
@@ -426,13 +415,42 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //draw a couple more
-        /*for (auto i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 10; i++)
         {
-            glm::mat4 model(1.0f);
-            glm::translate(model, cube_positions[i]);
-            standard_shader.setMat4("model", model);
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cube_positions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            standard_shader.setMat4("u_model", model);
+
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        }*/
+        }
+
+        //axis drawing
+        //------------
+        axes_shader.use();
+        axes_shader.setMat4("u_model", cube_model);
+        axes_shader.setMat4("u_view", camera_view);
+        axes_shader.setMat4("u_projection", projection);
+        axes_shader.setFloat("scale", 10.0f);
+        glBindVertexArray(axesVAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
+        glLineWidth(2.0f);
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+
+        axes_shader.setMat4("u_model", glm::mat4(1.0f));
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+
+        //draw a couple more
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cube_positions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            axes_shader.setMat4("u_model", model);
+            glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
+        }
 
         //light_cube_shader.use();
         //light_cube_shader.setMat4("u_model", light_model);
