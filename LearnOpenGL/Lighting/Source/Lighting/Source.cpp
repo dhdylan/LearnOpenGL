@@ -407,10 +407,14 @@ int main()
         standard_shader.setInt("material.specular_map", 1);
         standard_shader.setInt("material.emission_map", 2);
         standard_shader.setFloat("material.shininess", 32.0f);
+
         standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
-        standard_shader.setVec3("light.direction", light_direction);
+        standard_shader.setVec3("light.position", glm::vec3(0.0f, -5.0f, 0.0f));
+        standard_shader.setFloat("light.constant", 1.0f);
+        standard_shader.setFloat("light.linear", 0.09f);
+        standard_shader.setFloat("light.quadratic", 0.032f);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -442,7 +446,7 @@ int main()
         glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
 
         //draw a couple more
-        for (unsigned int i = 0; i < 10; i++)
+        /*for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cube_positions[i]);
@@ -450,7 +454,7 @@ int main()
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             axes_shader.setMat4("u_model", model);
             glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
-        }
+        }*/
 
         //light_cube_shader.use();
         //light_cube_shader.setMat4("u_model", light_model);

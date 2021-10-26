@@ -8,10 +8,15 @@ struct Material {
 }; 
 
 struct Light {
-    vec3 direction;
+    vec3 position;
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 in vec3 normal;
@@ -33,7 +38,7 @@ void main()
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
-    vec3 lightDir = mat3(transpose(inverse(u_view * u_model))) * normalize(-light.direction);
+    vec3 lightDir = normalize(fragPos - vec3(u_view * vec4(light.position, 1.0)));
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
@@ -48,6 +53,11 @@ void main()
 
     vec3 emission = vec3(texture(material.emission_map, texCoords));
 
-    vec3 result = (ambient + diffuse + specular + emission/2);
+    //point-lighting attenuation
+    //--------------------------
+    float _distance = length(light.position - fragPos);
+    float attenuation = 1.0 / light.constant + light.linear * _distance + light.quadratic * _distance;
+
+    vec3 result = attenuation * (ambient + diffuse + specular);
     fragColor = vec4(result, 1.0);
 }
