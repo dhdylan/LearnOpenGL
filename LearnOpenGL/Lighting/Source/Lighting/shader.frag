@@ -38,7 +38,7 @@ void main()
 
     //normalization is kind of redundant here but just for consistency idk
     vec3 normal = normalize(normal);
-    vec3 lightDir = normalize(fragPos - vec3(u_view * vec4(light.position, 1.0)));
+    vec3 lightDir = -normalize(fragPos - vec3(u_view * vec4(light.position, 1.0)));
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectedLightDir = reflect(-lightDir, normal);
 
@@ -55,8 +55,8 @@ void main()
 
     //point-lighting attenuation
     //--------------------------
-    float _distance = length(light.position - fragPos);
-    float attenuation = 1.0 / light.constant + light.linear * _distance + light.quadratic * _distance;
+    float _distance = length(fragPos - vec3(u_view * vec4(light.position, 1.0)));
+    float attenuation = 1.0 / (light.constant + light.linear * _distance + light.quadratic * _distance * _distance);
 
     vec3 result = attenuation * (ambient + diffuse + specular);
     fragColor = vec4(result, 1.0);
