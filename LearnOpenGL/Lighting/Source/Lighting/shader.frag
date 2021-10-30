@@ -9,6 +9,8 @@ struct Material {
 
 struct Light {
     vec3 position;
+    vec3 direction;
+    float cutoff;
 
     vec3 ambient;
     vec3 diffuse;
@@ -36,28 +38,32 @@ void main()
     //ambient light
     vec3 ambient = light.ambient * vec3(texture(material.diffuse_map, texCoords));
 
-    //normalization is kind of redundant here but just for consistency idk
-    vec3 normal = normalize(normal);
-    vec3 lightDir = -normalize(fragPos - vec3(u_view * vec4(light.position, 1.0)));
-    vec3 viewDir = normalize(-fragPos);
-    vec3 reflectedLightDir = reflect(-lightDir, normal);
+    vec3 lightToFragDir = normalize(light.position - fragPos); //negative because camera position is just 0,0,0
+    float theta = dot(lightToFragDir, normalize(-light.direction));
 
-    float _dot = pow(max(dot(viewDir, reflectedLightDir), 0.0), material.shininess);
-    vec3 specular = light.specular * vec3(texture(material.specular_map, texCoords)) * _dot;
+    float _dot;
+    vec3 diffuse;
+    vec3 specular;
+    vec3 reflectedLightDir;
 
-    //use the max function so if the dot product is negative, we just set it to zero.
-    //get the dot product of the normal vector and the light direction;
-    //the closer these two vectors are to being at a 90 degree angle from eachother, the closer "diff" will be to one
-    _dot = max(dot(normal, lightDir), 0.0); // range between 0 and 1
-    vec3 diffuse = light.diffuse * vec3(texture(material.diffuse_map, texCoords)) * _dot;
+    if(theta > light.cutoff)
+    {
+        _dot = dot(lightToFragDir, normal);
+        diffuse = light.diffuse * vec3(texture(material.diffuse_map, texCoords)) * _dot;
 
-    vec3 emission = vec3(texture(material.emission_map, texCoords));
+        reflectedLightDir = reflect(-lightToFragDir, normal);
+        _dot = pow(max(dot(-light.direction, reflectedLightDir), 0.0), material.shininess);
+        specular = light.specular * vec3(texture(material.specular_map, texCoords)) * _dot;
+    }
+
+
+    //vec3 emission = vec3(texture(material.emission_map, texCoords));
 
     //point-lighting attenuation
     //--------------------------
-    float _distance = length(fragPos - vec3(u_view * vec4(light.position, 1.0)));
+    float _distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * _distance + light.quadratic * _distance * _distance);
 
-    vec3 result = attenuation * (ambient + diffuse + specular);
+    vec3 result = ambient + (attenuation * (diffuse + specular));
     fragColor = vec4(result, 1.0);
 }

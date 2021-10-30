@@ -370,10 +370,6 @@ int main()
         cube_model = glm::translate(cube_model, glm::vec3(-2.0f, 0, 1.0f));
         cube_model = glm::rotate(cube_model, current_time / 8, glm::vec3(0.2f, 0.5f, 0.9f));
 
-        glm::mat4 light_model(1.0f);
-        glm::vec3 light_pos(0.0f, 5.0f, 0.0f);
-        light_model = glm::translate(light_model, light_pos);
-
         glm::mat4 axes_model(1.0f);
 #pragma endregion
 
@@ -391,17 +387,18 @@ int main()
         standard_shader.setMat4("u_model", cube_model);
         standard_shader.setMat4("u_view", camera_view);
         standard_shader.setMat4("u_projection", projection);
-        standard_shader.setVec3("u_cameraPos", camera.get_position());
 
         standard_shader.setInt("material.diffuse_map", 0);
         standard_shader.setInt("material.specular_map", 1);
         standard_shader.setInt("material.emission_map", 2);
         standard_shader.setFloat("material.shininess", 32.0f);
 
-        standard_shader.setVec3("light.ambient", glm::vec3(0.1f));
+        standard_shader.setVec3("light.ambient", glm::vec3(0.2f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
-        standard_shader.setVec3("light.position", light_pos);
+        standard_shader.setVec3("light.position", camera.get_position());
+        standard_shader.setVec3("light.direction", camera.get_forward());
+        standard_shader.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
         standard_shader.setFloat("light.constant", 1.0f);
         standard_shader.setFloat("light.linear", 0.09f);
         standard_shader.setFloat("light.quadratic", 0.032f);
@@ -446,13 +443,13 @@ int main()
             glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
         }*/
 
-        light_cube_shader.use();
+        /*light_cube_shader.use();
         light_cube_shader.setMat4("u_model", light_model);
         light_cube_shader.setMat4("u_view", camera_view);
         light_cube_shader.setMat4("u_projection", projection);
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        light_cube_shader.unuse();
+        light_cube_shader.unuse();*/
 #pragma endregion
 
         //swap buffers and check and call events
