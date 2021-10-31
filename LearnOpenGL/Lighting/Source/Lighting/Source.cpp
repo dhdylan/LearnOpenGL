@@ -19,7 +19,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main()
 {
-#pragma region setting up input
+    #pragma region setting up input
     //set up a list of buttons since i dont have any kind of config file type shit set up rn
     std::map<std::string, engine::Button> buttons = {
         {"esc", engine::Button(GLFW_KEY_ESCAPE)},
@@ -38,9 +38,9 @@ int main()
     engine::InputManager& input_manager = *engine::InputManager::getptr();
     input_manager.first_frame = true;
     input_manager.buttons = buttons;
-#pragma endregion
-
-#pragma region glfw initialization
+    #pragma endregion
+    
+    #pragma region glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -64,22 +64,22 @@ int main()
     glViewport(0, 0, 800, 650);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glEnable(GL_DEPTH_TEST);
-#pragma endregion
-
-#pragma region set up glfw callbacks
+    #pragma endregion
+    
+    #pragma region set up glfw callbacks
     glfwSetWindowSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, input_manager.static_key_callback);
     glfwSetCursorPosCallback(window, input_manager.static_mouse_callback);
     glfwSetScrollCallback(window, input_manager.static_scroll_callback);
-#pragma endregion
-
-#pragma region set up shader
+    #pragma endregion
+    
+    #pragma region set up shader
     Shader standard_shader("./Source/Lighting/shader.vert", "./Source/Lighting/shader.frag");
     Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
     Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
-#pragma endregion
-
-#pragma region set up texture
+    #pragma endregion
+    
+    #pragma region set up texture
     unsigned int crate_texture, crate_texture_specular, matrix;
     glGenTextures(1, &crate_texture);
     glGenTextures(1, &crate_texture_specular);
@@ -151,9 +151,9 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-#pragma endregion
-
-#pragma region vertex data
+    #pragma endregion
+    
+    #pragma region vertex data
     float cube[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
@@ -211,11 +211,11 @@ int main()
         0, 2,
         0, 3
     };
-#pragma endregion
-
-#pragma region set up vertex buffers
+    #pragma endregion
+    
+    #pragma region set up vertex buffers
     //generate VBO and VAO objects on the GPU
-    unsigned int VBO, VAO, lightVAO;
+    unsigned int VBO, VAO, light_cube_VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO); //bind vertex array object so all subsequent VBO calls will be stored with this VAO
     glGenBuffers(1, &VBO);
@@ -231,8 +231,8 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
     //for light source cube
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    glGenVertexArrays(1, &light_cube_VAO);
+    glBindVertexArray(light_cube_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
     //position
@@ -256,9 +256,9 @@ int main()
 
     //unbind
     glBindVertexArray(0);
-#pragma endregion
-   
-#pragma region misc update variables
+    #pragma endregion
+       
+    #pragma region misc update variables
     float last_time = (float)glfwGetTime();
     float current_time = (float)glfwGetTime();
     float delta_time = 0;
@@ -283,10 +283,24 @@ int main()
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-    
-#pragma endregion
 
-#pragma region update
+    //point light Positions
+    glm::vec3 light_positions[] =
+    {
+        glm::vec3(3.0f, 0.3f, 3.0f),
+        glm::vec3(-3.0f, 1.3f, 3.0f),
+        glm::vec3(3.0f, 0.3f, -3.0f),
+        glm::vec3(0.5f, 1.2f, -.3f)
+    };
+
+    standard_shader.setInt("u_material.diffuse_map", 0);
+    standard_shader.setInt("u_material.specular_map", 1);
+    standard_shader.setInt("u_material.emission_map", 2);
+    standard_shader.setFloat("u_material.shininess", 32.0f);
+    
+    #pragma endregion
+    
+    #pragma region update
     while (!glfwWindowShouldClose(window))
     {
         //check if we want to close window and end program.
@@ -296,7 +310,7 @@ int main()
         delta_time = current_time - last_time;
         last_time = current_time;
 
-#pragma region input processing
+        #pragma region input processing
         //movement input
         //--------------
         glm::vec3 delta_move(0.0f, 0.0f, 0.0f);
@@ -331,8 +345,8 @@ int main()
             delta_move -= move_speed * delta_time * camera.get_up();
         }
         camera.set_position(delta_move + camera.get_position());
-
-
+        
+        
         //first person look input and calcs
         //---------------------------------
         
@@ -346,8 +360,8 @@ int main()
             new_rotation.x = -89.0f;
         camera.set_rotation(new_rotation);
         input_manager.mouse_offset = glm::vec2(0.0f, 0.0f); // mouse offset has to be reset each frame since the callback is only called when there is mouse input.
-
-
+        
+        
         //zoom input and calcs
         //--------------------
         camera.fov -= input_manager.scroll_offset.y * zoom_speed;
@@ -359,10 +373,10 @@ int main()
         {
             camera.fov = camera.max_fov;
         }
-        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scroll input.  
-#pragma endregion
+        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scrollinput.  
+        #pragma endregion
 
-#pragma region matrices
+        #pragma region matrices
         glm::mat4 camera_view = camera.get_view_matrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
 
@@ -371,42 +385,54 @@ int main()
         cube_model = glm::rotate(cube_model, current_time / 8, glm::vec3(0.2f, 0.5f, 0.9f));
 
         glm::mat4 axes_model(1.0f);
-#pragma endregion
+        #pragma endregion
 
-#pragma region draw calls
+        #pragma region drawing
         //draw calls
         //----------
         //make background black and clear the buffers
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-        //cube drawing
-        //------------
+        #pragma region setting shaders
         standard_shader.use();
         standard_shader.setMat4("u_model", cube_model);
         standard_shader.setMat4("u_view", camera_view);
         standard_shader.setMat4("u_projection", projection);
+        standard_shader.setVec3("u_viewPos", camera.get_position());
 
-        standard_shader.setInt("material.diffuse_map", 0);
-        standard_shader.setInt("material.specular_map", 1);
-        standard_shader.setInt("material.emission_map", 2);
-        standard_shader.setFloat("material.shininess", 32.0f);
+        //directional light
+        standard_shader.setVec3("u_dirLight.direction", glm::vec3(0.2f, 0.7f, 0.1f));
+        standard_shader.setVec3("u_dirLight.ambient", glm::vec3(0.05f));
+        standard_shader.setVec3("u_dirLight.diffuse", glm::vec3(0.05f));
+        standard_shader.setVec3("u_dirLight.specular", glm::vec3(0.0f));
 
-        standard_shader.setVec3("light.ambient", glm::vec3(0.09f));
-        standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
-        standard_shader.setVec3("light.specular", glm::vec3(1.0f));
-        standard_shader.setVec3("light.position", camera.get_position());
-        standard_shader.setVec3("light.direction", camera.get_forward());
-        standard_shader.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
-        standard_shader.setFloat("light.outerCutoff", glm::cos(glm::radians(19.0f)));
-        standard_shader.setFloat("light.constant", 1.0f);
-        standard_shader.setFloat("light.linear", 0.09f);
-        standard_shader.setFloat("light.quadratic", 0.032f);
+        //point lights
+        for (int i = 0; i < 4; i++)
+        {
+            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].position", light_positions[i]);
+            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.25f, 0.9f, 0.1f));
+            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.6f, 1.0f, 0.3f));
+            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].constant", 1.0f);
+            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].linear", 0.6f);
+            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].quadratic", 0.45f);
+        }
+
+        //spot light
+        standard_shader.setVec3("u_spotLight.direction", camera.get_forward());
+        standard_shader.setVec3("u_spotLight.position", camera.get_position());
+        standard_shader.setVec3("u_spotLight.diffuse", glm::vec3(0.5f, 0.4f, 0.3f));
+        standard_shader.setVec3("u_spotLight.specular", glm::vec3(0.9f, 0.7f, 0.5f));
+        standard_shader.setFloat("u_spotLight.innerCutoff", glm::cos(glm::radians(9.0f)));
+        standard_shader.setFloat("u_spotLight.outerCutoff", glm::cos(glm::radians(19.0f)));
+        standard_shader.setFloat("u_spotLight.constant", 1.0f);
+        standard_shader.setFloat("u_spotLight.linear", 0.14f);
+        standard_shader.setFloat("u_spotLight.quadratic", 0.07f);
+        #pragma endregion
+
+        #pragma region drawing objects
+        //draw cubes
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //draw a couple more
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
@@ -418,53 +444,45 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        //axis drawing
-        //------------
-        axes_shader.use();
-        axes_shader.setMat4("u_model", cube_model);
-        axes_shader.setMat4("u_view", camera_view);
-        axes_shader.setMat4("u_projection", projection);
-        axes_shader.setFloat("scale", 10.0f);
-        glBindVertexArray(axesVAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, axesEBO);
-        glLineWidth(2.0f);
-        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
-
-        axes_shader.setMat4("u_model", glm::mat4(1.0f));
-        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
-
-        //draw a couple more
-        /*for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cube_positions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            axes_shader.setMat4("u_model", model);
-            glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, 0);
-        }*/
-
-        /*light_cube_shader.use();
-        light_cube_shader.setMat4("u_model", light_model);
-        light_cube_shader.setMat4("u_view", camera_view);
+        //draw light cubes for point lights
+        glBindVertexArray(light_cube_VAO);
+        light_cube_shader.use();
         light_cube_shader.setMat4("u_projection", projection);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        light_cube_shader.unuse();*/
+        light_cube_shader.setMat4("u_view", camera_view);
+        light_cube_shader.setVec3("u_lightColor", glm::vec3(0.25f, 0.9f, 0.1f));
+        glm::mat4 light_model(1.0f);
+        for (int i = 0; i<4; i++)
+        {
+            light_model = glm::mat4(1.0f);
+            light_model = glm::translate(light_model, light_positions[i]);
+            light_model = glm::scale(light_model, glm::vec3(0.2f));
+            light_cube_shader.setMat4("u_model", light_model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        //and another one for the spot light. I'l make it scaled down to show the difference
+        //light_model = glm::mat4(1.0f);
+        //light_model = glm::translate(light_model, glm::vec3(0.0f, 3.0f, 0.0f)); //position is just coped from above here
+        //light_model = glm::scale(light_model, glm::vec3(0.3f));
+        //light_cube_shader.setMat4("u_model", light_model);
+        //light_cube_shader.setVec3("u_lightColor", glm::vec3(1.0f));
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 #pragma endregion
+
+        #pragma endregion
 
         //swap buffers and check and call events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-#pragma endregion
+    #pragma endregion
 
-#pragma region termination 
+    #pragma region termination 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
-#pragma endregion
+    #pragma endregion
 
     return 0;
 }
