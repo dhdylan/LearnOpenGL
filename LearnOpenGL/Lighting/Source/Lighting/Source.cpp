@@ -393,12 +393,13 @@ int main()
         standard_shader.setInt("material.emission_map", 2);
         standard_shader.setFloat("material.shininess", 32.0f);
 
-        standard_shader.setVec3("light.ambient", glm::vec3(0.2f));
+        standard_shader.setVec3("light.ambient", glm::vec3(0.09f));
         standard_shader.setVec3("light.diffuse", glm::vec3(1.0f));
         standard_shader.setVec3("light.specular", glm::vec3(1.0f));
         standard_shader.setVec3("light.position", camera.get_position());
         standard_shader.setVec3("light.direction", camera.get_forward());
         standard_shader.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+        standard_shader.setFloat("light.outerCutoff", glm::cos(glm::radians(19.0f)));
         standard_shader.setFloat("light.constant", 1.0f);
         standard_shader.setFloat("light.linear", 0.09f);
         standard_shader.setFloat("light.quadratic", 0.032f);
