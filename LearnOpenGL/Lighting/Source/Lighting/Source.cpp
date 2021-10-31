@@ -10,7 +10,9 @@
 #include <input.h>
 #include <functional>
 #include <camera.h>
-
+#include <dearimgui/imgui_impl_glfw.h>
+#include <dearimgui/imgui_impl_opengl3.h>
+#include <dearimgui/imgui.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -32,7 +34,8 @@ int main()
         {"right", engine::Button(GLFW_KEY_RIGHT)},
         {"left", engine::Button(GLFW_KEY_LEFT)},
         {"up", engine::Button(GLFW_KEY_UP)},
-        {"down", engine::Button(GLFW_KEY_DOWN)}
+        {"down", engine::Button(GLFW_KEY_DOWN)},
+        {"tab", engine::Button(GLFW_KEY_TAB)}
     };
     //buttons and window members must be set with setter functions after construction
     engine::InputManager& input_manager = *engine::InputManager::getptr();
@@ -62,10 +65,22 @@ int main()
     }
     // tell openGL what the viewport size is
     glViewport(0, 0, 800, 650);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    input_manager.set_cursor_mode(GLFW_CURSOR_DISABLED);
     glEnable(GL_DEPTH_TEST);
     #pragma endregion
-    
+
+    #pragma region set up ImGui
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    #pragma endregion
+ 
     #pragma region set up glfw callbacks
     glfwSetWindowSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, input_manager.static_key_callback);
@@ -305,75 +320,95 @@ int main()
     {
         //check if we want to close window and end program.
         glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
+
+        // feed inputs to dear imgui, start new frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         //delta time
         current_time = (float)glfwGetTime();
         delta_time = current_time - last_time;
         last_time = current_time;
 
         #pragma region input processing
-        //movement input
-        //--------------
-        glm::vec3 delta_move(0.0f, 0.0f, 0.0f);
-        //forward
-        if (input_manager.buttons.at("w").down)
+        //turn the cursor on and off (for purposes of fucking with UI)
+        if (input_manager.buttons.at("tab").down)
         {
-            delta_move += move_speed * (float)delta_time * camera.get_forward();
+            bool cursor_state = input_manager.getptr()->get_mouse_enabled_status();
+
+            if (cursor_state == true)
+            {
+                input_manager.getptr()->set_cursor_mode(GLFW_CURSOR_DISABLED);
+            }
+            else
+            {
+                input_manager.getptr()->set_cursor_mode(GLFW_CURSOR_NORMAL);
+            }
         }
-        //back
-        if (input_manager.buttons.at("s").down)
+
+        //if cursor is on, dont let the camera move
+        if (!input_manager.getptr()->get_mouse_enabled_status())
         {
-            delta_move -= move_speed * (float)delta_time * camera.get_forward();
+            //movement input
+            glm::vec3 delta_move(0.0f, 0.0f, 0.0f);
+            //forward
+            if (input_manager.buttons.at("w").held)
+            {
+                delta_move += move_speed * (float)delta_time * camera.get_forward();
+            }
+            //back
+            if (input_manager.buttons.at("s").held)
+            {
+                delta_move -= move_speed * (float)delta_time * camera.get_forward();
+            }
+            //left
+            if (input_manager.buttons.at("a").held)
+            {
+                delta_move += move_speed * (float)delta_time * camera.get_right();
+            }
+            //right
+            if (input_manager.buttons.at("d").held)
+            {
+                delta_move -= move_speed * (float)delta_time * camera.get_right();
+            }
+            //camera up
+            if (input_manager.buttons.at("e").held)
+            {
+                delta_move += move_speed * delta_time * camera.get_up();
+            }
+            //camera down
+            if (input_manager.buttons.at("q").held)
+            {
+                delta_move -= move_speed * delta_time * camera.get_up();
+            }
+            camera.set_position(delta_move + camera.get_position());
+
+            //first person look input and calcs
+            glm::vec2 new_rotation;
+            glm::vec2& mouse_offset = input_manager.mouse_offset;
+            new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);
+            new_rotation.x = camera.get_rotation().x - (mouse_offset.y * mouse_sensitivity);
+            if (new_rotation.x > 89.0f)
+                new_rotation.x = 89.0f;
+            if (new_rotation.x < -89.0f)
+                new_rotation.x = -89.0f;
+            camera.set_rotation(new_rotation);
+            input_manager.mouse_offset = glm::vec2(0.0f, 0.0f); // mouse offset has to be reset each frame since the callback is only called when there is mouse input.
+
+            //zoom input and calcs
+            //--------------------
+            camera.fov -= input_manager.scroll_offset.y * zoom_speed;
+            if (camera.fov < camera.min_fov)
+            {
+                camera.fov = camera.min_fov;
+            }
+            if (camera.fov > camera.max_fov)
+            {
+                camera.fov = camera.max_fov;
+            }
+            input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scrollinput.  
         }
-        //left
-        if (input_manager.buttons.at("a").down)
-        {
-            delta_move += move_speed * (float)delta_time * camera.get_right();
-        }
-        //right
-        if (input_manager.buttons.at("d").down)
-        {
-            delta_move -= move_speed * (float)delta_time * camera.get_right();
-        }
-        //camera up
-        if (input_manager.buttons.at("e").down)
-        {
-            delta_move += move_speed * delta_time * camera.get_up();
-        }
-        //camera down
-        if (input_manager.buttons.at("q").down)
-        {
-            delta_move -= move_speed * delta_time * camera.get_up();
-        }
-        camera.set_position(delta_move + camera.get_position());
-        
-        
-        //first person look input and calcs
-        //---------------------------------
-        
-        glm::vec2 new_rotation;
-        glm::vec2& mouse_offset = input_manager.mouse_offset;
-        new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);
-        new_rotation.x = camera.get_rotation().x - (mouse_offset.y * mouse_sensitivity);
-        if (new_rotation.x > 89.0f)
-            new_rotation.x = 89.0f;
-        if (new_rotation.x < -89.0f)
-            new_rotation.x = -89.0f;
-        camera.set_rotation(new_rotation);
-        input_manager.mouse_offset = glm::vec2(0.0f, 0.0f); // mouse offset has to be reset each frame since the callback is only called when there is mouse input.
-        
-        
-        //zoom input and calcs
-        //--------------------
-        camera.fov -= input_manager.scroll_offset.y * zoom_speed;
-        if (camera.fov < camera.min_fov)
-        {
-            camera.fov = camera.min_fov;
-        }
-        if (camera.fov > camera.max_fov)
-        {
-            camera.fov = camera.max_fov;
-        }
-        input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scrollinput.  
         #pragma endregion
 
         #pragma region matrices
@@ -389,7 +424,6 @@ int main()
 
         #pragma region drawing
         //draw calls
-        //----------
         //make background black and clear the buffers
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -469,6 +503,17 @@ int main()
         //glDrawArrays(GL_TRIANGLES, 0, 36);
 #pragma endregion
 
+        #pragma region drawing ImGui
+        // render your GUI
+        ImGui::Begin("Demo window");
+        ImGui::Button("Hello!");
+        ImGui::End();
+
+        // Render dear imgui into screen
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        #pragma endregion
+
         #pragma endregion
 
         //swap buffers and check and call events
@@ -480,6 +525,10 @@ int main()
     #pragma region termination 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     #pragma endregion

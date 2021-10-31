@@ -84,8 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE\include;C:\Code\Graphics_Programming\glm\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\glm\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE;C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\dearimgui;C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE\include;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\;C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -149,17 +149,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\camera.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\glad\glad.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\GLFW\glfw3.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\GLFW\glfw3native.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\input.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\KHR\khrplatform.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\shader.h" />
-    <ClInclude Include="GLFW_LIB_INCLUDE\include\stb_image.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Source\DearImGUI\imgui.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_draw.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_tables.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_widgets.cpp" />
     <ClCompile Include="Source\Lighting\Source.cpp" />
     <ClCompile Include="Source\STB.cpp" />
   </ItemGroup>
@@ -169,9 +165,6 @@
     <Image Include="container2.png" />
     <Image Include="container2_specular.png" />
     <Image Include="matrix.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="GLFW_LIB_INCLUDE\glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Lighting\axes.frag" />
