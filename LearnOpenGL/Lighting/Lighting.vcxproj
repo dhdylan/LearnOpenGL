@@ -173,6 +173,8 @@
     <None Include="Source\Lighting\light.vert" />
     <None Include="Source\Lighting\shader.frag" />
     <None Include="Source\Lighting\shader.vert" />
+    <None Include="Source\Lighting\standard_lit.frag" />
+    <None Include="Source\Lighting\standard_lit.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

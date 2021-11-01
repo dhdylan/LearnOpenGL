@@ -10,8 +10,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-class Shader {
+namespace engine
+{
+	class Shader {
 	public:
 		//program id
 		unsigned int program_id;
@@ -48,7 +49,7 @@ class Shader {
 				vertex_code = vertex_stream.str();
 				frag_code = frag_stream.str();
 			}
-			catch(std::ifstream::failure e)
+			catch (std::ifstream::failure e)
 			{
 				std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n" << e.what() << std::endl;
 			}
@@ -140,6 +141,6 @@ class Shader {
 		{
 			glUniform3fv(glGetUniformLocation(program_id, name.c_str()), 1, &value[0]);
 		}
-};
-
+	};
+}
 #endif

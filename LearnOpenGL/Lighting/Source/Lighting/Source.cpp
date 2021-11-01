@@ -13,6 +13,7 @@
 #include <dearimgui/imgui_impl_glfw.h>
 #include <dearimgui/imgui_impl_opengl3.h>
 #include <dearimgui/imgui.h>
+#include <material.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -89,9 +90,9 @@ int main()
     #pragma endregion
     
     #pragma region set up shader
-    Shader standard_shader("./Source/Lighting/shader.vert", "./Source/Lighting/shader.frag");
-    Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
-    Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
+    engine::Shader standard_shader("./Source/Lighting/standard_lit.vert", "./Source/Lighting/standard_lit.frag");
+    engine::Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
+    engine::Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
     #pragma endregion
     
     #pragma region set up texture
@@ -282,6 +283,7 @@ int main()
     float zoom_speed = 15.0f;
     engine::Camera camera;
     glm::vec3 light_direction(1.0f);
+    float my_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     standard_shader.use();
 
@@ -312,6 +314,9 @@ int main()
     standard_shader.setInt("u_material.specular_map", 1);
     standard_shader.setInt("u_material.emission_map", 2);
     standard_shader.setFloat("u_material.shininess", 32.0f);
+
+    //dear ImGui bool
+    bool my_tool_active = true;
     
     #pragma endregion
     
@@ -446,8 +451,8 @@ int main()
         for (int i = 0; i < 4; i++)
         {
             standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].position", light_positions[i]);
-            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.25f, 0.9f, 0.1f));
-            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.6f, 1.0f, 0.3f));
+            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(my_color[0], my_color[1], my_color[2]));
+            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.9f));
             standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].constant", 1.0f);
             standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].linear", 0.6f);
             standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].quadratic", 0.45f);
@@ -509,8 +514,9 @@ int main()
 
         #pragma region drawing ImGui
         // render your GUI
-        ImGui::Begin("Demo window");
-        ImGui::Button("Hello!");
+        ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+        // Edit a color (stored as ~4 floats)
+        ImGui::ColorEdit4("Color", my_color);
         ImGui::End();
 
         // Render dear imgui into screen
