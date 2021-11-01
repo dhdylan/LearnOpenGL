@@ -467,6 +467,9 @@ int main()
 
         #pragma region drawing objects
         //draw cubes
+        standard_shader.setInt("u_material.diffuse_map", 0);
+        standard_shader.setInt("u_material.specular_map", 1);
+
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -483,7 +486,8 @@ int main()
         glm::mat4 model(1.0f);
         model = glm::scale(model, glm::vec3(100.0f));
         standard_shader.setMat4("u_model", model);
-        standard_shader.setInt("u_material.diffuse_map", 0);
+        standard_shader.setInt("u_material.diffuse_map", 2);
+        standard_shader.setInt("u_material.specualr_map", 2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //draw light cubes for point lights
