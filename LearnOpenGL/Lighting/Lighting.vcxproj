@@ -84,8 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\dearimgui;C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE\include;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\;C:\Code\Graphics_Programming\LearnOpenGL\Lighting\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\glm;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\dearimgui;C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\include\;C:\Code\Graphics_Programming\LearnOpenGL\GLFW_LIB_INCLUDE\include\glm;C:\Code\Graphics_Programming\LearnOpenGL\GLFW_LIB_INCLUDE\include\dearimgui;C:\Code\Graphics_Programming\LearnOpenGL\GLFW_LIB_INCLUDE\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Dylan\Source\Repos\LearnOpenGL\LearnOpenGL\GLFW_LIB_INCLUDE\;C:\Code\Graphics_Programming\LearnOpenGL\GLFW_LIB_INCLUDE;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

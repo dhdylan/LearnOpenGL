@@ -113,6 +113,7 @@ vec3 PointLight_calc(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float specularIntensity = pow(max(dot(reflectedLightDir, -viewDir), 0.0), u_material.shininess) * attenuation;
 
     vec3 diffuse = light.diffuse * diffuseIntensity * vec3(texture(u_material.diffuse_map, texCoords));
+
     vec3 specular = light.specular * specularIntensity * vec3(texture(u_material.specular_map, texCoords));
 
     return diffuse + specular;

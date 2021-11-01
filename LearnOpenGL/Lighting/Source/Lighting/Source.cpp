@@ -145,7 +145,7 @@ int main()
     }
     stbi_image_free(data);
 
-    // `third texture
+    // third texture
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, matrix);
     // set the texture wrapping/filtering options (on the currently bound texture object)
@@ -424,6 +424,7 @@ int main()
 
         #pragma region drawing
         //draw calls
+        
         //make background black and clear the buffers
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -478,6 +479,13 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        //draw a "skybox" lolololol
+        glm::mat4 model(1.0f);
+        model = glm::scale(model, glm::vec3(100.0f));
+        standard_shader.setMat4("u_model", model);
+        standard_shader.setInt("u_material.diffuse_map", 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         //draw light cubes for point lights
         glBindVertexArray(light_cube_VAO);
         light_cube_shader.use();
@@ -493,14 +501,6 @@ int main()
             light_cube_shader.setMat4("u_model", light_model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-        //and another one for the spot light. I'l make it scaled down to show the difference
-        //light_model = glm::mat4(1.0f);
-        //light_model = glm::translate(light_model, glm::vec3(0.0f, 3.0f, 0.0f)); //position is just coped from above here
-        //light_model = glm::scale(light_model, glm::vec3(0.3f));
-        //light_cube_shader.setMat4("u_model", light_model);
-        //light_cube_shader.setVec3("u_lightColor", glm::vec3(1.0f));
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
 #pragma endregion
 
         #pragma region drawing ImGui
