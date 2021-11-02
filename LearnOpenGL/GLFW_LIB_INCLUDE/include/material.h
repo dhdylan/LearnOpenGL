@@ -12,48 +12,58 @@ namespace engine
 	class Lit_Textured_Material
 	{
 	public:
-		#pragma region instance methods
-
 		#pragma region setters/getters
-				void set_diffuse_map(int texture_unit)
-				{
-					diffuse_map = texture_unit;
-					shader->setInt("u_material.diffuse_map", diffuse_map);
-				}
-				void set_specular_map(int texture_unit)
-				{
-					specular_map = texture_unit;
-					shader->setInt("u_material.specualr_map", specular_map);
-				}
-				void set_emission_map(int texture_unit)
-				{
-					emission_map = texture_unit;
-					shader->setInt("u_material.emission_map", emission_map);
-				}
-				void set_shininess(float _shininess)
-				{
-					shininess = _shininess;
-					shader->setFloat("u_material.shininess", shininess);
-				}
+		void set_diffuse_map(int texture_unit)
+		{
+			diffuse_map = texture_unit;
+			shader->setInt("u_material.diffuse_map", diffuse_map);
+		}
+		void set_specular_map(int texture_unit)
+		{
+			specular_map = texture_unit;
+			shader->setInt("u_material.specualr_map", specular_map);
+		}
+		void set_emission_map(int texture_unit)
+		{
+			emission_map = texture_unit;
+			shader->setInt("u_material.emission_map", emission_map);
+		}
+		void set_shininess(float _shininess)
+		{
+			shininess = _shininess;
+			shader->setFloat("u_material.shininess", shininess);
+		}
 
-				int get_diffuse_map()
-				{
-					return diffuse_map;
-				}
-				int get_specular_map()
-				{
-					return specular_map;
-				}
-				int get_emission_map()
-				{
-					return emission_map;
-				}
-				float get_shiniess()
-				{
-					return shininess;
-				}
+		int get_diffuse_map()
+		{
+			return diffuse_map;
+		}
+		int get_specular_map()
+		{
+			return specular_map;
+		}
+		int get_emission_map()
+		{
+			return emission_map;
+		}
+		float get_shiniess()
+		{
+			return shininess;
+		}
+		engine::Shader* get_shader_ptr()
+		{
+			return shader;
+		}
 		#pragma endregion
 
+		#pragma region instance methods
+		void send_material_to_shader()
+		{
+			shader->setInt("u_material.diffuse", diffuse_map);
+			shader->setInt("u_material.specular", specular_map);
+			shader->setInt("u_material.emission", emission_map);
+			shader->setFloat("u_material.shininess", shininess);
+		}
 		#pragma endregion
 
 		#pragma region constructors

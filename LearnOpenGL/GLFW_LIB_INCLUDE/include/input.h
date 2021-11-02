@@ -123,8 +123,8 @@ namespace engine
 		{
 			if (first_frame)
 			{
-				mouse_pos.x = x_pos;
-				mouse_pos.y = y_pos;
+				mouse_pos.x = (float)x_pos;
+				mouse_pos.y = (float)y_pos;
 				first_frame = false;
 			}
 			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos);

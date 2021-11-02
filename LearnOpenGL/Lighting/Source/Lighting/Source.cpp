@@ -14,6 +14,10 @@
 #include <dearimgui/imgui_impl_opengl3.h>
 #include <dearimgui/imgui.h>
 #include <material.h>
+#include <light.h>
+#include <world_object.h>
+#include <geometry.h>
+#include <world.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -390,7 +394,7 @@ int main()
             camera.set_position(delta_move + camera.get_position());
 
             //first person look input and calcs
-            glm::vec2 new_rotation;
+            glm::vec2 new_rotation(0.0f);
             glm::vec2& mouse_offset = input_manager.mouse_offset;
             new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);
             new_rotation.x = camera.get_rotation().x - (mouse_offset.y * mouse_sensitivity);
@@ -471,9 +475,6 @@ int main()
         #pragma endregion
 
         #pragma region drawing objects
-        //draw cubes
-        standard_shader.setInt("u_material.diffuse_map", 0);
-        standard_shader.setInt("u_material.specular_map", 1);
 
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++)
