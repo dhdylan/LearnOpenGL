@@ -58,9 +58,12 @@ uniform vec3 u_viewPos;
 
 //lights
 uniform DirLight u_dirLight;
-#define NR_POINT_LIGHTS 4
-uniform PointLight u_pointLight[NR_POINT_LIGHTS];
-uniform SpotLight u_spotLight;
+#define MAX_POINT_LIGHTS 16
+uniform int u_pointLightCount;
+uniform PointLight u_pointLight[MAX_POINT_LIGHTS];
+#define MAX_SPOT_LIGHTS 4
+uniform int u_spotLightCount;
+uniform SpotLight u_spotLight[MAX_SPOT_LIGHTS];
 
 uniform Material u_material;
 
@@ -74,13 +77,16 @@ void main()
     vec3 result = DirLight_calc(u_dirLight, normal, viewDir);
 
     //point lighting
-    for(int i=0; i<NR_POINT_LIGHTS; i++)
+    for(int i=0; i<u_pointLightCount; i++)
     {
         result += PointLight_calc(u_pointLight[i], normal, fragPos, viewDir);
     }
 
     //spot lighting
-    result += SpotLight_calc(u_spotLight, normal, fragPos, viewDir);
+    for(int i=0; i<spotLightCount; i++)
+    {
+        result += SpotLight_calc(u_spotLight, normal, fragPos, viewDir);
+    }
 
     fragColor = vec4(result, 1.0);
 }
