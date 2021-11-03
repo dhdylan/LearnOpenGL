@@ -46,12 +46,15 @@ namespace engine
 		#pragma endregion
 
 		#pragma region instance methods
-		void draw(engine::Dir_Light& dir_light, std::vector<engine::Point_Light> point_lights, std::vector<engine::Spot_Light> spot_lights)
+		void draw(engine::Dir_Light& dir_light, std::vector<engine::Point_Light>& point_lights, std::vector<engine::Spot_Light>& spot_lights, engine::Camera& user_camera)
 		{
 			engine::Shader& shader = *material.get_shader_ptr();
 			shader.use();
 
 			material.send_material_to_shader();
+			shader.setMat4("u_projection", user_camera.get_projection_matrix());
+			shader.setMat4("u_view", user_camera.get_view_matrix());
+			shader.setVec3("u_viewPos", user_camera.get_position());
 
 			#pragma region lights
 			shader.setVec3("u_dirLight.direction", dir_light.get_direction());
@@ -94,6 +97,15 @@ namespace engine
 			*/
 			shader.setMat4("u_model", model);
 
+		}
+		#pragma endregion
+
+		#pragma region constructor
+		World_Object()
+		{
+			position = glm::vec3(0.0f);
+			rotation = glm::vec3(0.0f);
+			world = nullptr;
 		}
 		#pragma endregion
 

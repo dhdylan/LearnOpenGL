@@ -26,6 +26,18 @@ namespace engine
 			return glm::lookAt(position, position + local_forward, local_up);
 		}
 
+		glm::mat4 get_projection_matrix()
+		{
+			glm::mat4 projection = glm::perspective(
+				glm::radians(fov),
+				aspect_ratio.y / aspect_ratio.x,
+				near_plane,
+				far_plane
+			);
+		}
+#pragma endregion
+
+#pragma region setters/getters
 		glm::vec3 get_position()
 		{
 			return position;
@@ -83,6 +95,7 @@ namespace engine
 		glm::vec3 local_up = glm::vec3(0.0f, 1.0f, 0.0f);
 		//unit vector that represents the local right direction of the camera.
 		glm::vec3 local_right = glm::vec3(1.0f, 0.0f, 0.0f);
+		
 #pragma endregion
 
 #pragma region instance methods

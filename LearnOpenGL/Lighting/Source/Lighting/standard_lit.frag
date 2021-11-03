@@ -83,9 +83,9 @@ void main()
     }
 
     //spot lighting
-    for(int i=0; i<spotLightCount; i++)
+    for(int i=0; i<u_spotLightCount; i++)
     {
-        result += SpotLight_calc(u_spotLight, normal, fragPos, viewDir);
+        result += SpotLight_calc(u_spotLight[i], normal, fragPos, viewDir);
     }
 
     fragColor = vec4(result, 1.0);
