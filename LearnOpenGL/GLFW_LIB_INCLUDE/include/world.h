@@ -50,11 +50,22 @@ namespace engine {
 		{
 			for (auto world_obj = world_objects.begin(); world_obj != world_objects.end(); world_obj++)
 			{
-				world_obj->get_material().get_shader_ptr()->setMat4("u_projection", 
-				world_obj->draw(dir_light, point_lights, spot_lights);
+				engine::Shader& shader = *world_obj->get_material().get_shader_ptr();
+				shader.setMat4("u_projection", user_camera.get_projection_matrix());
+				shader.setMat4("u_view", user_camera.get_view_matrix());
+				shader.setVec3("u_viewPos", user_camera.get_position());
+				world_obj->draw(dir_light, point_lights, spot_lights, user_camera);
 			}
 		}
 		#pragma endregion
+
+		#pragma region constructors
+		World()
+		{
+			
+		}
+		#pragma endregion
+
 
 
 	private:

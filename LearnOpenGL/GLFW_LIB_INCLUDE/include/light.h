@@ -22,7 +22,8 @@ namespace engine
 			return color;
 		}
 		#pragma endregion
-	private:
+
+	protected:
 		#pragma region variables
 		glm::vec4 color;
 		#pragma endregion
@@ -61,8 +62,19 @@ namespace engine
 		}
 		#pragma endregion
 
-	private:
-#pragma region variables
+		#pragma region constructor
+		Point_Light()
+		{
+			color = glm::vec4(1.0);
+			position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			constant = 1.0f;
+			linear = .07f;
+			quadratic = .032f;
+		}
+		#pragma endregion
+
+	protected:
+		#pragma region variables
 		glm::vec4 position;
 
 		//attenuation values
@@ -70,13 +82,12 @@ namespace engine
 		float linear;
 		float quadratic;
 #pragma endregion
-
 	};
 
 	class Spot_Light : public Point_Light
 	{
 	public:
-#pragma region getters/setters
+		#pragma region getters/setters
 		void set_direction(glm::vec3 _direction)
 		{
 			direction = _direction;
@@ -101,15 +112,28 @@ namespace engine
 		{
 			return outer_cutoff;
 		}
-#pragma endregion
+		#pragma endregion
+
+		#pragma region constructor
+		Spot_Light()
+		{
+			color = glm::vec4(1.0f);
+			position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			direction = glm::vec3(0.0f);
+			inner_cutoff = 6.5f;
+			outer_cutoff = 12.0f;
+			constant = 1.0f;
+			linear = .07f;
+			quadratic = .032f;
+		}
+		#pragma endregion
 
 	private:
-#pragma region variables
+		#pragma region variables
 		glm::vec3 direction;
 		float inner_cutoff;
 		float outer_cutoff;
-#pragma endregion
-
+		#pragma endregion
 	};
 
 	class Dir_Light : public virtual Light
@@ -131,6 +155,15 @@ namespace engine
 		float get_ambient()
 		{
 			return ambient;
+		}
+		#pragma endregion
+
+		#pragma region constructors
+		Dir_Light()
+		{
+			color = glm::vec4(1.0f);
+			direction = glm::vec3(0.0f);
+			ambient = 0.1f;
 		}
 		#pragma endregion
 
