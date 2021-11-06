@@ -21,6 +21,10 @@ namespace engine {
 		{
 			vao = 0;
 		}
+		Geometry(unsigned int _vao)
+		{
+			vao = _vao;
+		}
 		#pragma endregion
 
 	private:

@@ -162,7 +162,7 @@ namespace engine
 		Dir_Light()
 		{
 			color = glm::vec4(1.0f);
-			direction = glm::vec3(0.0f);
+			direction = glm::vec3(0.2f, -0.8f, 0.1f);
 			ambient = 0.1f;
 		}
 		#pragma endregion

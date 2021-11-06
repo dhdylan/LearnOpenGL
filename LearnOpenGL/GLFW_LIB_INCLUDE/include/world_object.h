@@ -3,11 +3,12 @@
 
 #include <light.h>
 #include <material.h>
+#include <geometry.h>
 #include <glm.hpp>
 
 namespace engine
 {
-	class World_Object
+	class Cube_Object
 	{
 	public:
 		#pragma region getters/setters
@@ -15,7 +16,7 @@ namespace engine
 		{
 			geometry = _geometry;
 		}
-		engine::Geometry get_geometry()
+		engine::Geometry& get_geometry()
 		{
 			return geometry;
 		}
@@ -23,7 +24,7 @@ namespace engine
 		{
 			material = _material;
 		}
-		engine::Lit_Textured_Material get_material()
+		engine::Lit_Textured_Material& get_material()
 		{
 			return material;
 		}
@@ -97,15 +98,16 @@ namespace engine
 			*/
 			shader.setMat4("u_model", model);
 
+			glBindVertexArray(geometry.get_vao());
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		#pragma endregion
 
 		#pragma region constructor
-		World_Object()
+		Cube_Object()
 		{
 			position = glm::vec3(0.0f);
 			rotation = glm::vec3(0.0f);
-			world = nullptr;
 		}
 		#pragma endregion
 
@@ -116,7 +118,6 @@ namespace engine
 		engine::Lit_Textured_Material material;
 		glm::vec3 position;
 		glm::vec3 rotation;
-		engine::World* world;
 		#pragma endregion
 
 	};

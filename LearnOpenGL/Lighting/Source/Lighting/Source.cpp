@@ -286,38 +286,23 @@ int main()
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
     engine::Camera camera;
-    glm::vec3 light_direction(1.0f);
-    float my_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    standard_shader.use();
-
-    // positions all containers
-    glm::vec3 cube_positions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-
-    //point light Positions
-    glm::vec3 light_positions[] =
-    {
-        glm::vec3(3.0f, 0.3f, 3.0f),
-        glm::vec3(-3.0f, 1.3f, 3.0f),
-        glm::vec3(3.0f, 0.3f, -3.0f),
-        glm::vec3(0.5f, 1.2f, -.3f)
-    };
-
-    standard_shader.setInt("u_material.diffuse_map", 0);
-    standard_shader.setInt("u_material.specular_map", 1);
-    standard_shader.setInt("u_material.emission_map", 2);
-    standard_shader.setFloat("u_material.shininess", 32.0f);
+    engine::World my_world;
+    my_world.set_camera_ptr(&camera);
+    engine::Dir_Light my_dir_light;
+    my_world.set_dir_light(my_dir_light);
+    engine::Point_Light my_point_light;
+    my_world.get_point_lights().push_back(my_point_light);
+    engine::Cube_Object my_cube;
+    engine::Lit_Textured_Material my_material;
+    my_material.set_shader_ptr(&standard_shader);
+    my_cube.set_material(my_material);
+    my_material.set_diffuse_map(0);
+    my_material.set_specular_map(1);
+    engine::Geometry my_geometry(VAO);
+    my_cube.set_geometry(my_geometry);
+    my_cube.set_position(glm::vec3(-1.0f, 0.0f, -1.0f));
+    my_world.get_cube_objects().push_back(my_cube);
 
     //dear ImGui bool
     bool my_tool_active = true;
@@ -338,7 +323,7 @@ int main()
         //delta time
         current_time = (float)glfwGetTime();
         delta_time = current_time - last_time;
-        last_time = current_time;
+        last_time = current_time; 
 
         #pragma region input processing
         //turn the cursor on and off (for purposes of fucking with UI)
@@ -438,86 +423,13 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        #pragma region setting shaders
-        standard_shader.use();
-        standard_shader.setMat4("u_model", cube_model);
-        standard_shader.setMat4("u_view", camera_view);
-        standard_shader.setMat4("u_projection", projection);
-        standard_shader.setVec3("u_viewPos", camera.get_position());
-
-        //directional light
-        standard_shader.setVec3("u_dirLight.direction", glm::vec3(0.2f, 0.7f, 0.1f));
-        standard_shader.setVec3("u_dirLight.ambient", glm::vec3(0.05f));
-        standard_shader.setVec3("u_dirLight.diffuse", glm::vec3(0.05f));
-        standard_shader.setVec3("u_dirLight.specular", glm::vec3(0.0f));
-
-        //point lights
-        for (int i = 0; i < 4; i++)
-        {
-            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].position", light_positions[i]);
-            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(my_color[0], my_color[1], my_color[2]));
-            standard_shader.setVec3("u_pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.9f));
-            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].constant", 1.0f);
-            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].linear", 0.6f);
-            standard_shader.setFloat("u_pointLight[" + std::to_string(i) + "].quadratic", 0.45f);
-        }
-
-        //spot light
-        standard_shader.setVec3("u_spotLight.direction", camera.get_forward());
-        standard_shader.setVec3("u_spotLight.position", camera.get_position());
-        standard_shader.setVec3("u_spotLight.diffuse", glm::vec3(0.5f, 0.4f, 0.3f));
-        standard_shader.setVec3("u_spotLight.specular", glm::vec3(0.9f, 0.7f, 0.5f));
-        standard_shader.setFloat("u_spotLight.innerCutoff", glm::cos(glm::radians(9.0f)));
-        standard_shader.setFloat("u_spotLight.outerCutoff", glm::cos(glm::radians(19.0f)));
-        standard_shader.setFloat("u_spotLight.constant", 1.0f);
-        standard_shader.setFloat("u_spotLight.linear", 0.14f);
-        standard_shader.setFloat("u_spotLight.quadratic", 0.07f);
-        #pragma endregion
-
-        #pragma region drawing objects
-
-        glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cube_positions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            standard_shader.setMat4("u_model", model);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-
-        //draw a "skybox" lolololol
-        glm::mat4 model(1.0f);
-        model = glm::scale(model, glm::vec3(100.0f));
-        standard_shader.setMat4("u_model", model);
-        standard_shader.setInt("u_material.diffuse_map", 2);
-        standard_shader.setInt("u_material.specualr_map", 2);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //draw light cubes for point lights
-        glBindVertexArray(light_cube_VAO);
-        light_cube_shader.use();
-        light_cube_shader.setMat4("u_projection", projection);
-        light_cube_shader.setMat4("u_view", camera_view);
-        light_cube_shader.setVec3("u_lightColor", glm::vec3(0.25f, 0.9f, 0.1f));
-        glm::mat4 light_model(1.0f);
-        for (int i = 0; i<4; i++)
-        {
-            light_model = glm::mat4(1.0f);
-            light_model = glm::translate(light_model, light_positions[i]);
-            light_model = glm::scale(light_model, glm::vec3(0.2f));
-            light_cube_shader.setMat4("u_model", light_model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-#pragma endregion
+        my_world.draw_world();
 
         #pragma region drawing ImGui
         // render your GUI
         ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
         // Edit a color (stored as ~4 floats)
-        ImGui::ColorEdit4("Color", my_color);
+        //ImGui::ColorEdit4("Color", my_color);
         ImGui::End();
 
         // Render dear imgui into screen
