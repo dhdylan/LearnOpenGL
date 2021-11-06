@@ -28,12 +28,13 @@ namespace engine
 
 		glm::mat4 get_projection_matrix()
 		{
-			glm::mat4 projection = glm::perspective(
+			return glm::perspective(
 				glm::radians(fov),
 				aspect_ratio.y / aspect_ratio.x,
 				near_plane,
 				far_plane
 			);
+
 		}
 #pragma endregion
 

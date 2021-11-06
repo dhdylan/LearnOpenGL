@@ -33,6 +33,10 @@ namespace engine
 			shininess = _shininess;
 			shader->setFloat("u_material.shininess", shininess);
 		}
+		void set_shader_ptr(engine::Shader* _shader)
+		{
+			shader = _shader;
+		}
 
 		int get_diffuse_map()
 		{
