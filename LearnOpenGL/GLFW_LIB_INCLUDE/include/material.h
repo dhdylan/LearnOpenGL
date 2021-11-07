@@ -12,51 +12,38 @@ namespace engine
 	class Lit_Textured_Material
 	{
 	public:
-		#pragma region setters/getters
+
+		#pragma region variables
+		//------- read only -----------
+		const int& diffuse_map = _diffuse_map;
+		const int& specular_map = _specular_map;
+		const int& emission_map = _emission_map;
+		const float& shininess = _shininess;
+		//-----------------------------
+
+		engine::Shader& shader;
+		#pragma endregion
+
+		#pragma region setters
 		void set_diffuse_map(int texture_unit)
 		{
-			diffuse_map = texture_unit;
-			shader->setInt("u_material.diffuse_map", diffuse_map);
+			_diffuse_map = texture_unit;
+			shader.setInt("u_material.diffuse_map", _diffuse_map);
 		}
 		void set_specular_map(int texture_unit)
 		{
-			specular_map = texture_unit;
-			shader->setInt("u_material.specualr_map", specular_map);
+			_specular_map = texture_unit;
+			shader.setInt("u_material.specualr_map", _specular_map);
 		}
 		void set_emission_map(int texture_unit)
 		{
-			emission_map = texture_unit;
-			shader->setInt("u_material.emission_map", emission_map);
+			_emission_map = texture_unit;
+			shader.setInt("u_material.emission_map", _emission_map);
 		}
-		void set_shininess(float _shininess)
+		void set_shininess(float __shininess)
 		{
-			shininess = _shininess;
-			shader->setFloat("u_material.shininess", shininess);
-		}
-		void set_shader_ptr(engine::Shader* _shader)
-		{
-			shader = _shader;
-		}
-
-		int get_diffuse_map()
-		{
-			return diffuse_map;
-		}
-		int get_specular_map()
-		{
-			return specular_map;
-		}
-		int get_emission_map()
-		{
-			return emission_map;
-		}
-		float get_shiniess()
-		{
-			return shininess;
-		}
-		engine::Shader* get_shader_ptr()
-		{
-			return shader;
+			_shininess = __shininess;
+			shader.setFloat("u_material.shininess", _shininess);
 		}
 		#pragma endregion
 
@@ -71,23 +58,20 @@ namespace engine
 		#pragma endregion
 
 		#pragma region constructors
-		Lit_Textured_Material()
+		Lit_Textured_Material(Shader& _shader) : shader(_shader)
 		{
-			diffuse_map, specular_map, emission_map = 0;
-			shininess = 32.0f;
-			shader = nullptr;
+			_diffuse_map, _specular_map, _emission_map = 0;
+			_shininess = 32.0f;
 		}
 		#pragma endregion
 
 
 	private:
-		#pragma region variables
-		int diffuse_map = 0;
-		int specular_map = 0;
-		int emission_map = 0;
-		float shininess = 32.0f;
-
-		engine::Shader* shader;
+		#pragma region private variables
+		int _diffuse_map = 0;
+		int _specular_map = 0;
+		int _emission_map = 0;
+		float _shininess = 32.0f;
 		#pragma endregion
 	};
 }

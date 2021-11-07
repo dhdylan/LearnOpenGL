@@ -5,16 +5,8 @@ namespace engine {
 	class Geometry
 	{
 	public:
-		#pragma region setters/getters
-		void set_vao(unsigned int _vao)
-		{
-			vao = _vao;
-		}
-		unsigned int get_vao()
-		{
-			return vao;
-		}
-		#pragma endregion
+
+		unsigned int vao;
 
 		#pragma region constructors
 		Geometry()
@@ -26,9 +18,6 @@ namespace engine {
 			vao = _vao;
 		}
 		#pragma endregion
-
-	private:
-		unsigned int vao;
 	};
 }
 #endif
