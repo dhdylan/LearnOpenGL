@@ -11,11 +11,12 @@
 
 namespace engine
 {
-	enum ButtonState {
+	enum class ButtonState {
 		held,
 		down,
 		up
 	};
+
 	class Button
 	{
 	public:
