@@ -24,11 +24,7 @@ namespace engine {
 		{
 			for (auto world_obj = world_objects.begin(); world_obj != world_objects.end(); world_obj++)
 			{
-				engine::Shader& shader = world_obj->material->shader;
-				shader.setMat4("u_projection", user_camera->get_projection_matrix());
-				shader.setMat4("u_view", user_camera->get_view_matrix());
-				shader.setVec3("u_viewPos", user_camera->position);
-				world_obj->draw(dir_light, point_lights, spot_lights, *user_camera);
+				world_obj->draw_object(dir_light, point_lights, spot_lights, *user_camera);
 			}
 		}
 		#pragma endregion

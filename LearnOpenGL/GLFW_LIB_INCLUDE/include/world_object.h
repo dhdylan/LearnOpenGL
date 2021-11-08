@@ -19,7 +19,7 @@ namespace engine
 		#pragma endregion
 
 		#pragma region instance methods
-		void draw(
+		void draw_object(
 			engine::Dir_Light& dir_light,
 			std::vector<engine::Point_Light>& point_lights,
 			std::vector<engine::Spot_Light>& spot_lights,
@@ -32,6 +32,7 @@ namespace engine
 			material->send_material_to_shader();
 			shader.setMat4("u_projection", user_camera.get_projection_matrix());
 			shader.setMat4("u_view", user_camera.get_view_matrix());
+			shader.setMat4("u_model", glm::translate(glm::mat4(1.0f), position));
 			shader.setVec3("u_viewPos", user_camera.position);
 
 			#pragma region lights
@@ -41,7 +42,8 @@ namespace engine
 			shader.setVec3("u_dirLight.specular", glm::normalize(glm::vec3(1.5f) * glm::vec3(dir_light.color)));
 
 			//point lights
-			for (int i = 0; i < point_lights.size(); i++)
+			shader.setInt("u_pointLightCount", static_cast<int>(point_lights.size()));
+			for (int i = 0; i < static_cast<int>(point_lights.size()); i++)
 			{
 				shader.setVec3("u_pointLight[" + std::to_string(i) + "].position", point_lights[i].position);
 				shader.setVec3("u_pointLight[" + std::to_string(i) + "].diffuse", point_lights[i].color);
@@ -52,7 +54,8 @@ namespace engine
 			}
 
 			//spot lights
-			for (int i = 0; i < spot_lights.size(); i++)
+			shader.setInt("u_spotLightCount", static_cast<int>(spot_lights.size()));
+			for (int i = 0; i < static_cast<int>(spot_lights.size()); i++)
 			{
 				shader.setVec3("u_spotLight[i].direction", spot_lights[i].direction);
 				shader.setVec3("u_spotLight[i].position", spot_lights[i].position);
@@ -66,24 +69,25 @@ namespace engine
 			}
 			#pragma endregion
 
-			glm::mat4 model(1.0f);
-			model = glm::translate(model, position);
 			/*    not gonna do rotation for now. I need to understand eulers and quaternions better first
 			model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 			*/
-			shader.setMat4("u_model", model);
 
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, material->diffuse_map);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, material->specular_map);
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		#pragma endregion
 
 		#pragma region constructor
-		Cube_Object(engine::Shader& shader, const int _vao) : vao(_vao)
+		Cube_Object(engine::Shader& shader, const int _vao, unsigned int diffuse_map, unsigned int specular_map) : vao(_vao)
 		{
-			material = new engine::Lit_Textured_Material(shader);
+			material = new engine::Lit_Textured_Material(shader, diffuse_map, specular_map);
 			position = glm::vec3(0.0f);
 			rotation = glm::vec3(0.0f);
 		}
