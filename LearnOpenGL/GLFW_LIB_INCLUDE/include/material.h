@@ -1,3 +1,7 @@
+#define DIFFUSE_UNIT 0
+#define SPECULAR_UNIT 1
+#define EMISSION_UNIT 2
+
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
@@ -6,6 +10,7 @@
 #include <gtc/type_ptr.hpp>
 #include <dearimgui/imgui.h>
 #include <shader.h>
+#include <texture.h>
 
 namespace engine
 {
@@ -48,19 +53,21 @@ namespace engine
 		#pragma endregion
 
 		#pragma region instance methods
-		void send_material_to_shader()
+		void send_material_to_shader() //remember that when you set the smapler2d uniform on the shader with an int here, youre telling it the TEXTURE UNIT **not** the texture id
 		{
-			shader->setInt("u_material.diffuse", diffuse_map);
-			shader->setInt("u_material.specular", specular_map);
-			shader->setInt("u_material.emission", emission_map);
-			shader->setFloat("u_material.shininess", shininess);
+			shader.setInt("u_material.diffuse_map", DIFFUSE_UNIT);
+			shader.setInt("u_material.specular_map", SPECULAR_UNIT);
+			shader.setInt("u_material.emission_map", EMISSION_UNIT);
+			shader.setFloat("u_material.shininess", shininess);
 		}
 		#pragma endregion
 
 		#pragma region constructors
-		Lit_Textured_Material(Shader& _shader) : shader(_shader)
+		Lit_Textured_Material(Shader& _shader, unsigned int diffuse, unsigned int specular) : shader(_shader)
 		{
-			_diffuse_map, _specular_map, _emission_map = 0;
+			_diffuse_map = diffuse;
+			_specular_map = specular;
+			_emission_map = 0;
 			_shininess = 32.0f;
 		}
 		#pragma endregion

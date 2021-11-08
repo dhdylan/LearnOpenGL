@@ -48,6 +48,7 @@ vec3 SpotLight_calc(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 in vec3 normal;
 in vec3 fragPos;
+in flat vec4 vertexPos;
 in vec2 texCoords;
 
 uniform mat4 u_view;
@@ -89,12 +90,13 @@ void main()
     }
 
     fragColor = vec4(result, 1.0);
+    //fragColor = vec4(u_material.specular_map / 3, u_material.specular_map / 3, u_material.specular_map / 3, 1.0);
 }
 
 vec3 DirLight_calc(DirLight light, vec3 normal, vec3 viewDir)
 {
     //diffuse lighting
-    float diffuseIntensity = max(dot(-normalize(light.direction), normal), 0.0);
+    float diffuseIntensity = max(dot(normalize(light.direction), normal), 0.0);
     //speclar lighting
     vec3 reflectedLightDir = reflect(-normalize(light.direction), normal);
     float specularIntensity = pow(max(dot(reflectedLightDir, viewDir), 0.0), u_material.shininess);

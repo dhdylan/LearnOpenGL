@@ -1,3 +1,7 @@
+#define DIFFUSE_UNIT 0
+#define SPECULAR_UNIT 1
+#define EMISSION_UNIT 2
+
 #include < glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -18,6 +22,8 @@
 #include <world_object.h>
 #include <geometry.h>
 #include <world.h>
+#include <texture.h>
+#include <filesystem>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -97,80 +103,6 @@ int main()
     engine::Shader standard_shader("./Source/Lighting/standard_lit.vert", "./Source/Lighting/standard_lit.frag");
     engine::Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
     engine::Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
-    #pragma endregion
-    
-    #pragma region set up texture
-    unsigned int crate_texture, crate_texture_specular, matrix;
-    glGenTextures(1, &crate_texture);
-    glGenTextures(1, &crate_texture_specular);
-    glGenTextures(1, &matrix);
-
-    //first texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, crate_texture);
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load and generate the texture
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load("container2.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // `second texture
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, crate_texture_specular);
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load and generate the texture
-    stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // third texture
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, matrix);
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load and generate the texture
-    stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("matrix.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
     #pragma endregion
     
     #pragma region vertex data
@@ -285,24 +217,28 @@ int main()
     float move_speed = 2.5;
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
-    engine::Camera camera;
+    engine::World world;
+    engine::Point_Light point_light;
+    world.dir_light.color = glm::vec4(0.1f);
+    world.dir_light.ambient = 0.25f;
+    point_light.color = glm::vec4(1.0f, 0.3f, 0.15f, 1.0f);
+    point_light.position = glm::vec4(2.0f, 1.0f, 0.0f, 1.0);
+    world.point_lights.push_back(point_light);
+    point_light.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    point_light.position = glm::vec4(-2.5f, -1.8f, 0.8f, 1.0f);
+    world.point_lights.push_back(point_light);
+    engine::Texture crate_diffuse = engine::Texture((std::filesystem::current_path().string() + "\\container2.png").c_str());
+    engine::Texture crate_specular = engine::Texture((std::filesystem::current_path().string() + "\\container2_specular.png").c_str());
 
-    engine::World my_world;
-    my_world.set_camera_ptr(&camera);
-    engine::Dir_Light my_dir_light;
-    my_world.set_dir_light(my_dir_light);
-    engine::Point_Light my_point_light;
-    my_world.get_point_lights().push_back(my_point_light);
-    engine::Cube_Object my_cube;
-    engine::Lit_Textured_Material my_material;
-    my_material.set_shader_ptr(&standard_shader);
-    my_cube.set_material(my_material);
-    my_material.set_diffuse_map(0);
-    my_material.set_specular_map(1);
-    engine::Geometry my_geometry(VAO);
-    my_cube.set_geometry(my_geometry);
-    my_cube.set_position(glm::vec3(-1.0f, 0.0f, -1.0f));
-    my_world.get_cube_objects().push_back(my_cube);
+    //make a bunch of cubes
+    for (int i = 0; i < 10; i++)
+    {
+        world.world_objects.push_back(engine::Cube_Object(standard_shader, VAO, crate_diffuse.texture_id, crate_specular.texture_id));
+        world.world_objects[i].position = glm::vec3(
+            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
+    }
 
     //dear ImGui bool
     bool my_tool_active = true;
@@ -349,71 +285,70 @@ int main()
             //forward
             if (input_manager.buttons.at("w").held)
             {
-                delta_move += move_speed * (float)delta_time * camera.get_forward();
+                delta_move += move_speed * (float)delta_time * world.user_camera->local_forward;
             }
             //back
             if (input_manager.buttons.at("s").held)
             {
-                delta_move -= move_speed * (float)delta_time * camera.get_forward();
+                delta_move -= move_speed * (float)delta_time * world.user_camera->local_forward;
             }
             //left
             if (input_manager.buttons.at("a").held)
             {
-                delta_move += move_speed * (float)delta_time * camera.get_right();
+                delta_move += move_speed * (float)delta_time * world.user_camera->local_right;
             }
             //right
             if (input_manager.buttons.at("d").held)
             {
-                delta_move -= move_speed * (float)delta_time * camera.get_right();
+                delta_move -= move_speed * (float)delta_time * world.user_camera->local_right;
             }
             //camera up
             if (input_manager.buttons.at("e").held)
             {
-                delta_move += move_speed * delta_time * camera.get_up();
+                delta_move += move_speed * delta_time * world.user_camera->local_up;
             }
             //camera down
             if (input_manager.buttons.at("q").held)
             {
-                delta_move -= move_speed * delta_time * camera.get_up();
+                delta_move -= move_speed * delta_time * world.user_camera->local_up;
             }
-            camera.set_position(delta_move + camera.get_position());
+            world.user_camera->position += delta_move;
 
             //first person look input and calcs
             glm::vec2 new_rotation(0.0f);
             glm::vec2& mouse_offset = input_manager.mouse_offset;
-            new_rotation.y = camera.get_rotation().y - (mouse_offset.x * mouse_sensitivity);
-            new_rotation.x = camera.get_rotation().x - (mouse_offset.y * mouse_sensitivity);
+            new_rotation.y = world.user_camera->rotation.y - (mouse_offset.x * mouse_sensitivity);
+            new_rotation.x = world.user_camera->rotation.x - (mouse_offset.y * mouse_sensitivity);
             if (new_rotation.x > 89.0f)
                 new_rotation.x = 89.0f;
             if (new_rotation.x < -89.0f)
                 new_rotation.x = -89.0f;
-            camera.set_rotation(new_rotation);
+            world.user_camera->set_rotation(new_rotation);
             input_manager.mouse_offset = glm::vec2(0.0f, 0.0f); // mouse offset has to be reset each frame since the callback is only called when there is mouse input.
 
             //zoom input and calcs
             //--------------------
-            camera.fov -= input_manager.scroll_offset.y * zoom_speed;
-            if (camera.fov < camera.min_fov)
+            world.user_camera->fov -= input_manager.scroll_offset.y * zoom_speed;
+            if (world.user_camera->fov < world.user_camera->min_fov)
             {
-                camera.fov = camera.min_fov;
+                world.user_camera->fov = world.user_camera->min_fov;
             }
-            if (camera.fov > camera.max_fov)
+            if (world.user_camera->fov > world.user_camera->max_fov)
             {
-                camera.fov = camera.max_fov;
+                world.user_camera->fov = world.user_camera->max_fov;
             }
             input_manager.scroll_offset = glm::vec2(0.0f, 0.0f); // scroll offset has to be reset each frame since the callback is only called when there is scrollinput.  
         }
         #pragma endregion
 
         #pragma region matrices
-        glm::mat4 camera_view = camera.get_view_matrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), camera.aspect_ratio.y / camera.aspect_ratio.x, camera.near_plane, camera.far_plane);
-
-        glm::mat4 cube_model(1.0f);
-        cube_model = glm::translate(cube_model, glm::vec3(-2.0f, 0, 1.0f));
-        cube_model = glm::rotate(cube_model, current_time / 8, glm::vec3(0.2f, 0.5f, 0.9f));
-
-        glm::mat4 axes_model(1.0f);
+        glm::mat4 camera_view = world.user_camera->get_view_matrix();
+        glm::mat4 projection = glm::perspective(
+            glm::radians(world.user_camera->fov),
+            world.user_camera->aspect_ratio.y / world.user_camera->aspect_ratio.x,
+            world.user_camera->near_plane,
+            world.user_camera->far_plane
+        );
         #pragma endregion
 
         #pragma region drawing
@@ -423,7 +358,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        my_world.draw_world();
+        world.draw_world();
 
         #pragma region drawing ImGui
         // render your GUI
