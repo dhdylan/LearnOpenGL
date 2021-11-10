@@ -10,6 +10,7 @@ namespace engine
 	public:
 		#pragma region variables
 		glm::vec4 color;
+		unsigned int vao;
 		#pragma endregion
 
 		#pragma region getters/setters
@@ -22,16 +23,14 @@ namespace engine
 			return ImVec4(color.x, color.y, color.z, color.w);
 		}
 		#pragma endregion
-
-	protected:
 	};
 
 	class Point_Light : public virtual Light
 	{
 	public:
 		#pragma region variables
-		glm::vec4 position;
-
+		glm::vec3 position;
+		engine::Shader& light_shader;
 		//attenuation values
 		float constant;
 		float linear;
@@ -39,7 +38,7 @@ namespace engine
 		#pragma endregion
 
 		#pragma region constructor
-		Point_Light()
+		Point_Light(engine::Shader& _light_shader) : Light(), light_shader(_light_shader)
 		{
 			color = glm::vec4(1.0);
 			position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -47,7 +46,24 @@ namespace engine
 			linear = .07f;
 			quadratic = .032f;
 		}
+
+		Point_Light() = delete;
 		#pragma endregion
+
+		#pragma region instance methods
+		void draw(engine::Camera& camera)
+		{
+			light_shader.use();
+			light_shader.setMat4("u_projection", camera.get_projection_matrix());
+			light_shader.setMat4("u_view", camera.get_view_matrix());
+			light_shader.setMat4("u_model", glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(0.3f)));
+			light_shader.setVec3("u_lightColor", color);
+
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		#pragma endregion
+
 	};
 
 	class Spot_Light : public Point_Light
@@ -60,7 +76,7 @@ namespace engine
 		#pragma endregion
 
 		#pragma region constructor
-		Spot_Light()
+		Spot_Light(engine::Shader& _light_shader) : Point_Light(_light_shader)
 		{
 			color = glm::vec4(1.0f);
 			position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -71,6 +87,8 @@ namespace engine
 			linear = .07f;
 			quadratic = .032f;
 		}
+
+		Spot_Light() = delete;
 		#pragma endregion
 	};
 

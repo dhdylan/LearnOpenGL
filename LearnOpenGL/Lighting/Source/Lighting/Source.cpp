@@ -218,7 +218,8 @@ int main()
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
     engine::World world;
-    engine::Point_Light point_light;
+    engine::Point_Light point_light(light_cube_shader);
+    point_light.vao = light_cube_VAO;
     world.dir_light.color = glm::vec4(0.1f);
     world.dir_light.ambient = 0.25f;
     point_light.color = glm::vec4(1.0f, 0.3f, 0.15f, 1.0f);
@@ -363,8 +364,23 @@ int main()
         #pragma region drawing ImGui
         // render your GUI
         ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
-        // Edit a color (stored as ~4 floats)
-        //ImGui::ColorEdit4("Color", my_color);
+        //Edit a color (stored as ~4 floats)
+        float light1[] = {
+            world.point_lights[0].color.x,
+            world.point_lights[0].color.y,
+            world.point_lights[0].color.z,
+            world.point_lights[0].color.w,
+        };
+        float light2[] = {
+            world.point_lights[1].color.x,
+            world.point_lights[1].color.y,
+            world.point_lights[1].color.z,
+            world.point_lights[1].color.w,
+        };
+        ImGui::ColorEdit4("Color", light1);
+        ImGui::ColorEdit4("Color", light2);
+        world.point_lights[0].color = glm::vec4(light1[0], light1[1], light1[2], light1[3]);
+        world.point_lights[1].color = glm::vec4(light2[0], light2[1], light2[2], light2[3]);
         ImGui::End();
 
         // Render dear imgui into screen

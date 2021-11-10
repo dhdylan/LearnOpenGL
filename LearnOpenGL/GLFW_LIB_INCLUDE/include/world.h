@@ -22,9 +22,16 @@ namespace engine {
 		#pragma region instance methods
 		void draw_world()
 		{
+			//draw cubes
 			for (auto world_obj = world_objects.begin(); world_obj != world_objects.end(); world_obj++)
 			{
 				world_obj->draw_object(dir_light, point_lights, spot_lights, *user_camera);
+			}
+
+			//draw lights
+			for (auto point_light = point_lights.begin(); point_light != point_lights.end(); point_light++)
+			{
+				point_light->draw(*user_camera);
 			}
 		}
 		#pragma endregion
