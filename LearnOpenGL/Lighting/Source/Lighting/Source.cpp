@@ -390,6 +390,9 @@ int main()
         //Edit a color (stored as ~4 floats)
         ImGui::ColorEdit4("Color", light1);
         ImGui::ColorEdit4("Color2", light2);
+        ImGui::SliderFloat3("Light 1 Position", light1_pos, -50.0f, 50.0f, "%.1f");
+        ImGui::SliderFloat3("Light 2 Position", light2_pos, -50.0f, 50.0f, "%.1f");
+        ImGui::ShowDemoWindow();
         ImGui::End();
 
         // Render dear imgui into screen
