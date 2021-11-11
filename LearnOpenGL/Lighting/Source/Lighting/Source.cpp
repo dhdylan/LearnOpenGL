@@ -390,7 +390,6 @@ int main()
         //Edit a color (stored as ~4 floats)
         ImGui::ColorEdit4("Color", light1);
         ImGui::ColorEdit4("Color2", light2);
-        ImGui::ShowDemoWindow();
         ImGui::End();
 
         // Render dear imgui into screen
