@@ -17,6 +17,7 @@
 #include <dearimgui/imgui_impl_glfw.h>
 #include <dearimgui/imgui_impl_opengl3.h>
 #include <dearimgui/imgui.h>
+#include <dearimgui/imconfig.h>
 #include <material.h>
 #include <light.h>
 #include <world_object.h>
@@ -231,6 +232,22 @@ int main()
     engine::Texture crate_diffuse = engine::Texture((std::filesystem::current_path().string() + "\\container2.png").c_str());
     engine::Texture crate_specular = engine::Texture((std::filesystem::current_path().string() + "\\container2_specular.png").c_str());
 
+    float light1[] = {
+        world.point_lights[0].color.x,
+        world.point_lights[0].color.y,
+        world.point_lights[0].color.z,
+        world.point_lights[0].color.w,
+    };
+    float light2[] = {
+        world.point_lights[1].color.x,
+        world.point_lights[1].color.y,
+        world.point_lights[1].color.z,
+        world.point_lights[1].color.w,
+    };
+    float light1_pos[] = { world.point_lights[0].position.x, world.point_lights[0].position.y, world.point_lights[0].position.z };
+    float light2_pos[] = { world.point_lights[1].position.x, world.point_lights[1].position.y, world.point_lights[1].position.z };
+
+
     //make a bunch of cubes
     for (int i = 0; i < 10; i++)
     {
@@ -251,11 +268,6 @@ int main()
     {
         //check if we want to close window and end program.
         glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
-
-        // feed inputs to dear imgui, start new frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
 
         //delta time
         current_time = (float)glfwGetTime();
@@ -358,6 +370,17 @@ int main()
         //make background black and clear the buffers
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        // feed inputs to dear imgui, start new frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        world.point_lights[0].color = glm::vec4(light1[0], light1[1], light1[2], light1[3]);
+        world.point_lights[1].color = glm::vec4(light2[0], light2[1], light2[2], light2[3]);
+
+        world.point_lights[0].position = glm::vec3(light1_pos[0], light1_pos[1], light1_pos[2]);
+        world.point_lights[1].position = glm::vec3(light2_pos[0], light2_pos[1], light2_pos[2]);
 
         world.draw_world();
 
@@ -365,22 +388,9 @@ int main()
         // render your GUI
         ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
         //Edit a color (stored as ~4 floats)
-        float light1[] = {
-            world.point_lights[0].color.x,
-            world.point_lights[0].color.y,
-            world.point_lights[0].color.z,
-            world.point_lights[0].color.w,
-        };
-        float light2[] = {
-            world.point_lights[1].color.x,
-            world.point_lights[1].color.y,
-            world.point_lights[1].color.z,
-            world.point_lights[1].color.w,
-        };
         ImGui::ColorEdit4("Color", light1);
-        ImGui::ColorEdit4("Color", light2);
-        world.point_lights[0].color = glm::vec4(light1[0], light1[1], light1[2], light1[3]);
-        world.point_lights[1].color = glm::vec4(light2[0], light2[1], light2[2], light2[3]);
+        ImGui::ColorEdit4("Color2", light2);
+        ImGui::ShowDemoWindow();
         ImGui::End();
 
         // Render dear imgui into screen

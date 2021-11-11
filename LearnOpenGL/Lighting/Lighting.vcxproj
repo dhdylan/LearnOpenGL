@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="Source\DearImGUI\imgui.cpp" />
+    <ClCompile Include="Source\DearImGUI\imgui_demo.cpp" />
     <ClCompile Include="Source\DearImGUI\imgui_draw.cpp" />
     <ClCompile Include="Source\DearImGUI\imgui_impl_glfw.cpp" />
     <ClCompile Include="Source\DearImGUI\imgui_impl_opengl3.cpp" />
