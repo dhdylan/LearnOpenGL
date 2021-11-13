@@ -392,6 +392,16 @@ int main()
         ImGui::ColorEdit4("Color2", light2);
         ImGui::SliderFloat3("Light 1 Position", light1_pos, -50.0f, 50.0f, "%.1f");
         ImGui::SliderFloat3("Light 2 Position", light2_pos, -50.0f, 50.0f, "%.1f");
+        ImGui::Separator();
+        if (ImGui::Button("Add Random Box", ImVec2(40, 20)))
+        {
+            engine::Cube_Object new_cube(standard_shader, VAO, crate_diffuse, crate_specular);
+            new_cube.position = glm::vec3(
+                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
+            world.world_objects.push_back(new_cube);
+        }
         ImGui::ShowDemoWindow();
         ImGui::End();
 
