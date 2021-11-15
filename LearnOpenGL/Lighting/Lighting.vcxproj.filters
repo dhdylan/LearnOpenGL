@@ -64,10 +64,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Lighting\shader.vert" />
     <None Include="Source\Lighting\light.frag" />
     <None Include="Source\Lighting\light.vert" />
-    <None Include="Source\Lighting\shader.frag" />
     <None Include="Source\Lighting\axes.frag" />
     <None Include="Source\Lighting\axes.vert" />
     <None Include="Source\Lighting\standard_lit.frag" />

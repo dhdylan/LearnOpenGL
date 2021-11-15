@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9bec523c-d351-4c27-be07-4f7919269791}</ProjectGuid>
-    <RootNamespace>Lighting</RootNamespace>
+    <ProjectGuid>{d2cd008a-cc2a-4895-990c-0a6c5b0fa70f}</ProjectGuid>
+    <RootNamespace>ModelLoading</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -150,15 +150,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Source\DearImGUI\imgui.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_demo.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_draw.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_impl_glfw.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_tables.cpp" />
-    <ClCompile Include="Source\DearImGUI\imgui_widgets.cpp" />
-    <ClCompile Include="Source\Lighting\Source.cpp" />
-    <ClCompile Include="Source\STB.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_demo.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_draw.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_tables.cpp" />
+    <ClCompile Include="cpp\DearImGUI\imgui_widgets.cpp" />
+    <ClCompile Include="cpp\Source\Source.cpp" />
+    <ClCompile Include="cpp\STB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesomeface.png" />
@@ -168,12 +168,23 @@
     <Image Include="matrix.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Lighting\axes.frag" />
-    <None Include="Source\Lighting\axes.vert" />
-    <None Include="Source\Lighting\light.frag" />
-    <None Include="Source\Lighting\light.vert" />
-    <None Include="Source\Lighting\standard_lit.frag" />
-    <None Include="Source\Lighting\standard_lit.vert" />
+    <None Include="cpp\Source\axes.frag" />
+    <None Include="cpp\Source\axes.vert" />
+    <None Include="cpp\Source\light.frag" />
+    <None Include="cpp\Source\light.vert" />
+    <None Include="cpp\Source\standard_lit.frag" />
+    <None Include="cpp\Source\standard_lit.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\camera.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\geometry.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\input.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\light.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\material.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\shader.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\texture.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world_object.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -85,7 +85,7 @@ namespace engine
 		#pragma endregion
 
 		#pragma region constructor
-		Cube_Object(engine::Shader shader, int _vao, unsigned int diffuse_map, unsigned int specular_map) : vao(_vao)
+		Cube_Object(engine::Shader& shader, int _vao, unsigned int diffuse_map, unsigned int specular_map) : vao(_vao)
 		{
 			material = new engine::Lit_Textured_Material(shader, diffuse_map, specular_map);
 			position = glm::vec3(0.0f);

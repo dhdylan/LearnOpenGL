@@ -101,9 +101,9 @@ int main()
     #pragma endregion
     
     #pragma region set up shader
-    engine::Shader standard_shader("./Source/Lighting/standard_lit.vert", "./Source/Lighting/standard_lit.frag");
-    engine::Shader light_cube_shader("./Source/Lighting/light.vert", "./Source/Lighting/light.frag");
-    engine::Shader axes_shader("./Source/Lighting/axes.vert", "./Source/Lighting/axes.frag");
+    engine::Shader standard_shader("./cpp/Source/standard_lit.vert", "./cpp/Source/standard_lit.frag");
+    engine::Shader light_cube_shader("./cpp/Source/light.vert", "./cpp/Source/light.frag");
+    engine::Shader axes_shader("./cpp/Source/axes.vert", "./cpp/Source/axes.frag");
     #pragma endregion
     
     #pragma region vertex data
@@ -229,6 +229,7 @@ int main()
     point_light.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     point_light.position = glm::vec4(-2.5f, -1.8f, 0.8f, 1.0f);
     world.point_lights.push_back(point_light);
+    std::cout << std::filesystem::current_path().string() + "\\container2.png" << std::endl;
     engine::Texture crate_diffuse = engine::Texture((std::filesystem::current_path().string() + "\\container2.png").c_str());
     engine::Texture crate_specular = engine::Texture((std::filesystem::current_path().string() + "\\container2_specular.png").c_str());
 
@@ -401,8 +402,8 @@ int main()
                 10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
                 10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
             world.world_objects.push_back(new_cube);
-        }
-        ImGui::ShowDemoWindow();*/
+        }*/
+        //ImGui::ShowDemoWindow();
         ImGui::End();
 
         // Render dear imgui into screen
