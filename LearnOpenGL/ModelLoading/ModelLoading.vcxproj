@@ -184,7 +184,7 @@
     <ClInclude Include="..\GLFW_LIB_INCLUDE\include\shader.h" />
     <ClInclude Include="..\GLFW_LIB_INCLUDE\include\texture.h" />
     <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world.h" />
-    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world_object.h" />
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\cube_object.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

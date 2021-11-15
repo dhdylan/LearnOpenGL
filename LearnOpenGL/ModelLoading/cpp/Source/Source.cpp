@@ -20,7 +20,7 @@
 #include <dearimgui/imconfig.h>
 #include <material.h>
 #include <light.h>
-#include <world_object.h>
+#include <cube_object.h>
 #include <geometry.h>
 #include <world.h>
 #include <texture.h>
@@ -218,46 +218,12 @@ int main()
     float move_speed = 2.5;
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
+
+
     engine::World world;
-    engine::Point_Light point_light(light_cube_shader);
-    point_light.vao = light_cube_VAO;
-    world.dir_light.color = glm::vec4(0.1f);
-    world.dir_light.ambient = 0.25f;
-    point_light.color = glm::vec4(1.0f, 0.3f, 0.15f, 1.0f);
-    point_light.position = glm::vec4(2.0f, 1.0f, 0.0f, 1.0);
-    world.point_lights.push_back(point_light);
-    point_light.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    point_light.position = glm::vec4(-2.5f, -1.8f, 0.8f, 1.0f);
-    world.point_lights.push_back(point_light);
-    std::cout << std::filesystem::current_path().string() + "\\container2.png" << std::endl;
     engine::Texture crate_diffuse = engine::Texture((std::filesystem::current_path().string() + "\\container2.png").c_str());
     engine::Texture crate_specular = engine::Texture((std::filesystem::current_path().string() + "\\container2_specular.png").c_str());
 
-    float light1[] = {
-        world.point_lights[0].color.x,
-        world.point_lights[0].color.y,
-        world.point_lights[0].color.z,
-        world.point_lights[0].color.w,
-    };
-    float light2[] = {
-        world.point_lights[1].color.x,
-        world.point_lights[1].color.y,
-        world.point_lights[1].color.z,
-        world.point_lights[1].color.w,
-    };
-    float light1_pos[] = { world.point_lights[0].position.x, world.point_lights[0].position.y, world.point_lights[0].position.z };
-    float light2_pos[] = { world.point_lights[1].position.x, world.point_lights[1].position.y, world.point_lights[1].position.z };
-
-
-    //make a bunch of cubes
-    for (int i = 0; i < 10; i++)
-    {
-        world.world_objects.push_back(engine::Cube_Object(standard_shader, VAO, crate_diffuse.texture_id, crate_specular.texture_id));
-        world.world_objects[i].position = glm::vec3(
-            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
-            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
-            10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
-    }
 
     //dear ImGui bool
     bool my_tool_active = true;
@@ -270,10 +236,12 @@ int main()
         //check if we want to close window and end program.
         glfwSetWindowShouldClose(window, input_manager.buttons.at("esc").down);
 
+        #pragma region time
         //delta time
         current_time = (float)glfwGetTime();
         delta_time = current_time - last_time;
-        last_time = current_time; 
+        last_time = current_time;
+        #pragma endregion
 
         #pragma region input processing
         //turn the cursor on and off (for purposes of fucking with UI)
@@ -355,16 +323,6 @@ int main()
         }
         #pragma endregion
 
-        #pragma region matrices
-        glm::mat4 camera_view = world.user_camera->get_view_matrix();
-        glm::mat4 projection = glm::perspective(
-            glm::radians(world.user_camera->fov),
-            world.user_camera->aspect_ratio.y / world.user_camera->aspect_ratio.x,
-            world.user_camera->near_plane,
-            world.user_camera->far_plane
-        );
-        #pragma endregion
-
         #pragma region drawing
         //draw calls
         
@@ -377,33 +335,11 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        world.point_lights[0].color = glm::vec4(light1[0], light1[1], light1[2], light1[3]);
-        world.point_lights[1].color = glm::vec4(light2[0], light2[1], light2[2], light2[3]);
-
-        world.point_lights[0].position = glm::vec3(light1_pos[0], light1_pos[1], light1_pos[2]);
-        world.point_lights[1].position = glm::vec3(light2_pos[0], light2_pos[1], light2_pos[2]);
-
         world.draw_world();
 
         #pragma region drawing ImGui
         // render your GUI
         ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
-        //Edit a color (stored as ~4 floats)
-        ImGui::ColorEdit4("Color", light1);
-        ImGui::ColorEdit4("Color2", light2);
-        ImGui::SliderFloat3("Light 1 Position", light1_pos, -50.0f, 50.0f, "%.1f");
-        ImGui::SliderFloat3("Light 2 Position", light2_pos, -50.0f, 50.0f, "%.1f");
-        ImGui::Separator();
-        /*if (ImGui::Button("Add Random Box", ImVec2(40, 20)))
-        {
-            engine::Cube_Object new_cube(standard_shader, VAO, crate_diffuse, crate_specular);
-            new_cube.position = glm::vec3(
-                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
-                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
-                10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
-            world.world_objects.push_back(new_cube);
-        }*/
-        //ImGui::ShowDemoWindow();
         ImGui::End();
 
         // Render dear imgui into screen

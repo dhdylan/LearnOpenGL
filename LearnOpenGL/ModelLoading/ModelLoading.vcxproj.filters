@@ -111,7 +111,7 @@
     <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\world_object.h">
+    <ClInclude Include="..\GLFW_LIB_INCLUDE\include\cube_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

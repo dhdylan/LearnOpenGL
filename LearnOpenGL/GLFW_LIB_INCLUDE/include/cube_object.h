@@ -84,6 +84,23 @@ namespace engine
 		}
 		#pragma endregion
 
+		#pragma region static methods
+		static std::vector<engine::Cube_Object> create_random_cubes(unsigned int nr_cubes, engine::Shader _shader, unsigned int _vao, unsigned int _diffuse_texture_id, unsigned int _specular_texture_id)
+		{
+			std::vector<engine::Cube_Object> cubes;
+			//make a bunch of cubes
+			for (int i = 0; i < nr_cubes; i++)
+			{
+				cubes.push_back(engine::Cube_Object(_shader, _vao, _diffuse_texture_id, _specular_texture_id));
+				cubes[i].position = glm::vec3(
+					10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+					10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f),
+					10 * ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) - 0.5f));
+			}
+			return cubes;
+		}
+		#pragma endregion
+
 		#pragma region constructor
 		Cube_Object(engine::Shader& shader, int _vao, unsigned int diffuse_map, unsigned int specular_map) : vao(_vao)
 		{
