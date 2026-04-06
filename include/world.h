@@ -2,10 +2,9 @@
 #define WORLD_H
 
 #include <light.h>
-#include <world_object.h>
 #include <camera.h>
 #include <shader.h>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace engine {
 	class World

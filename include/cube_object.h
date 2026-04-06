@@ -4,7 +4,7 @@
 #include <light.h>
 #include <material.h>
 #include <geometry.h>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace engine
 {

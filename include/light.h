@@ -1,7 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
-#include <glm.hpp>
-#include <dearimgui/imgui.h>
+#include <glm/glm.hpp>
+#include <imgui.h>
 
 namespace engine
 {
