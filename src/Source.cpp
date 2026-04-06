@@ -101,9 +101,9 @@ int main()
     #pragma endregion
     
     #pragma region set up shader
-    engine::Shader standard_shader("./cpp/Source/standard_lit.vert", "./cpp/Source/standard_lit.frag");
-    engine::Shader light_cube_shader("./cpp/Source/light.vert", "./cpp/Source/light.frag");
-    engine::Shader axes_shader("./cpp/Source/axes.vert", "./cpp/Source/axes.frag");
+    engine::Shader standard_shader("./shaders/standard_lit.vert", "./shaders/standard_lit.frag");
+    engine::Shader light_cube_shader("./shaders/light.vert", "./shaders/light.frag");
+    engine::Shader axes_shader("./shaders/axes.vert", "./shaders/axes.frag");
     #pragma endregion
     
     #pragma region vertex data
@@ -221,8 +221,8 @@ int main()
 
 
     engine::World world;
-    engine::Texture crate_diffuse = engine::Texture((std::filesystem::current_path().string() + "\\container2.png").c_str());
-    engine::Texture crate_specular = engine::Texture((std::filesystem::current_path().string() + "\\container2_specular.png").c_str());
+    engine::Texture crate_diffuse = engine::Texture("./assets/container2.png");
+    engine::Texture crate_specular = engine::Texture("./assets/container2_specular.png");
 
 
     //dear ImGui bool

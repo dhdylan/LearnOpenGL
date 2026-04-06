@@ -48,7 +48,7 @@ vec3 SpotLight_calc(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 in vec3 normal;
 in vec3 fragPos;
-in flat vec4 vertexPos;
+flat in vec4 vertexPos;
 in vec2 texCoords;
 
 uniform mat4 u_view;
