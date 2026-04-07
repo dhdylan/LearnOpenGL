@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <glm/glm.hpp>
+#include <backends/imgui_impl_glfw.h>
 
 namespace engine
 {
@@ -58,6 +59,8 @@ namespace engine
 		static void static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods);
 		//static method that calls the instance_mouse_callback
 		static void static_mouse_callback(GLFWwindow*, double x_pos, double y_pos);
+
+		static void static_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 		//callback for the scroll wheel
 		static void static_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll);
 		//set whether or not the mouse should move around (exist) or not
@@ -131,6 +134,22 @@ namespace engine
 			mouse_offset = glm::vec2(x_pos - mouse_pos.x, mouse_pos.y - y_pos);
 			mouse_pos = glm::vec2(x_pos, y_pos);
 		}
+
+		void instance_mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+		{
+			Button* mouseButton = nullptr;
+
+			for (auto iter = buttons.begin(); iter != buttons.end(); iter++)
+			{
+				if (iter->second.key_code == button)
+				{
+					mouseButton = &iter->second;
+					mouseButton->button_state = action == GLFW_PRESS ? ButtonState::down : ButtonState::up;
+					mouseButton->down = action == GLFW_PRESS;
+					mouseButton->up = !mouseButton->down;
+				}
+			}
+		}
 		//every time the scroll wheel is "rolled" or whatever you want to call it, this is called. keep in mind that this is not called every frame, as are the rest of the functions. it is only called when the event is raised.
 		void instance_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll)
 		{
@@ -168,48 +187,57 @@ namespace engine
 #pragma endregion
 	};
 #pragma region static definitions
-	InputManager* InputManager::getptr()
+InputManager* InputManager::getptr()
+{
+	if (instance == nullptr)
 	{
-		if (instance == nullptr)
-		{
-			instance = new InputManager();
-			instance->first_frame = true;
-		}
-		return instance;
+		instance = new InputManager();
+		instance->first_frame = true;
 	}
+	return instance;
+}
 
-	void InputManager::static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
-	{
-		getptr()->instance_key_callback(window, key_code, scancode, action, mods);
-	}
+void InputManager::static_key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
+{
+	ImGui_ImplGlfw_KeyCallback(window, key_code, scancode, action, mods);
+	getptr()->instance_key_callback(window, key_code, scancode, action, mods);
+}
 
-	void InputManager::static_mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
-	{
-		getptr()->instance_mouse_callback(window, x_pos, y_pos);
-	}
+void InputManager::static_mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
+{
+	ImGui_ImplGlfw_CursorPosCallback(window, x_pos, y_pos);
+	getptr()->instance_mouse_callback(window, x_pos, y_pos);
+}
 
-	void InputManager::static_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll)
-	{
-		getptr()->instance_scroll_callback(window, x_scroll, y_scroll);
-	}
+void InputManager::static_mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+	getptr()->instance_mouse_button_callback(window, button, action, mods);
+}
 
-	void InputManager::set_cursor_mode(int glfw_cursor_state)
+void InputManager::static_scroll_callback(GLFWwindow* window, double x_scroll, double y_scroll)
+{
+	ImGui_ImplGlfw_ScrollCallback(window, x_scroll, y_scroll);
+	getptr()->instance_scroll_callback(window, x_scroll, y_scroll);
+}
+
+void InputManager::set_cursor_mode(int glfw_cursor_state)
+{
+	if (glfw_cursor_state == GLFW_CURSOR_NORMAL)
 	{
-		if (glfw_cursor_state == GLFW_CURSOR_NORMAL)
-		{
-			glfwSetInputMode(getptr()->window, GLFW_CURSOR, glfw_cursor_state);
-			getptr()->mouse_enabled = true;
-		}
-		else if(glfw_cursor_state == GLFW_CURSOR_DISABLED)
-		{
-			glfwSetInputMode(getptr()->window, GLFW_CURSOR, glfw_cursor_state);
-			getptr()->mouse_enabled = false;
-		}
-		else
-		{
-			std::cerr << "\"InputManager::set_cursor_mode\" || Invalid GLFW int" << std::endl;
-		}
+		glfwSetInputMode(getptr()->window, GLFW_CURSOR, glfw_cursor_state);
+		getptr()->mouse_enabled = true;
 	}
+	else if(glfw_cursor_state == GLFW_CURSOR_DISABLED)
+	{
+		glfwSetInputMode(getptr()->window, GLFW_CURSOR, glfw_cursor_state);
+		getptr()->mouse_enabled = false;
+	}
+	else
+	{
+		std::cerr << "\"InputManager::set_cursor_mode\" || Invalid GLFW int" << std::endl;
+	}
+}
 #pragma endregion
 }
 

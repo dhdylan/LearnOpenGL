@@ -49,7 +49,9 @@ int main()
         {"left", engine::Button(GLFW_KEY_LEFT)},
         {"up", engine::Button(GLFW_KEY_UP)},
         {"down", engine::Button(GLFW_KEY_DOWN)},
-        {"tab", engine::Button(GLFW_KEY_TAB)}
+        {"tab", engine::Button(GLFW_KEY_TAB)},
+        {"mouse1", engine::Button(GLFW_MOUSE_BUTTON_1)},
+        {"mouse2", engine::Button(GLFW_MOUSE_BUTTON_2)}
     };
     //buttons and window members must be set with setter functions after construction
     engine::InputManager& input_manager = *engine::InputManager::getptr();
@@ -91,7 +93,7 @@ int main()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // Setup Dear ImGui style
@@ -103,6 +105,7 @@ int main()
     glfwSetKeyCallback(window, input_manager.static_key_callback);
     glfwSetCursorPosCallback(window, input_manager.static_mouse_callback);
     glfwSetScrollCallback(window, input_manager.static_scroll_callback);
+    glfwSetMouseButtonCallback(window, input_manager.static_mouse_button_callback);
     #pragma endregion
     
     #pragma region set up shader
