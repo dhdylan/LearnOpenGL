@@ -14,10 +14,12 @@
 #include <input.h>
 #include <functional>
 #include <camera.h>
+
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
 #include <imconfig.h>
+
 #include <material.h>
 #include <light.h>
 #include <cube_object.h>
@@ -77,7 +79,6 @@ int main()
     }
     // tell openGL what the viewport size is
     glViewport(0, 0, 800, 650);
-    input_manager.set_cursor_mode(GLFW_CURSOR_DISABLED);
     glEnable(GL_DEPTH_TEST);
     #pragma endregion
 
@@ -86,9 +87,13 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     #pragma endregion
@@ -168,11 +173,11 @@ int main()
     
     #pragma region set up vertex buffers
     //generate VBO and VAO objects on the GPU
-    unsigned int VBO, VAO, light_cube_VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO); //bind vertex array object so all subsequent VBO calls will be stored with this VAO
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); //bind this buffer as the current GL_ARRAY_BUFFER object
+    unsigned int cube_vbo, cube_vao, light_cube_VAO;
+    glGenVertexArrays(1, &cube_vao);
+    glBindVertexArray(cube_vao); //bind vertex array object so all subsequent VBO calls will be stored with this VAO
+    glGenBuffers(1, &cube_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo); //bind this buffer as the current GL_ARRAY_BUFFER object
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW); //give that buffer it's data
     //set up vertex attributes
     //position
@@ -186,7 +191,7 @@ int main()
     //for light source cube
     glGenVertexArrays(1, &light_cube_VAO);
     glBindVertexArray(light_cube_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
     //position
     glEnableVertexAttribArray(0); //tell opengl we are using attribute position 0
@@ -219,11 +224,11 @@ int main()
     float mouse_sensitivity = 0.5f;
     float zoom_speed = 15.0f;
 
-
-    engine::World world;
     engine::Texture crate_diffuse = engine::Texture("./assets/container2.png");
     engine::Texture crate_specular = engine::Texture("./assets/container2_specular.png");
 
+    engine::World world;
+    world.cubes = engine::Cube_Object::create_random_cubes(10, standard_shader, cube_vao, crate_diffuse.texture_id, crate_specular.texture_id);
 
     //dear ImGui bool
     bool my_tool_active = true;
@@ -330,24 +335,16 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+        world.draw_world();
+        #pragma endregion
+
         // feed inputs to dear imgui, start new frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        world.draw_world();
-
-        #pragma region drawing ImGui
-        // render your GUI
-        ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
-        ImGui::End();
-
-        // Render dear imgui into screen
+        ImGui::ShowDemoWindow();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        #pragma endregion
-
-        #pragma endregion
 
         //swap buffers and check and call events
         glfwSwapBuffers(window);
@@ -356,8 +353,8 @@ int main()
     #pragma endregion
 
     #pragma region termination 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &cube_vao);
+    glDeleteBuffers(1, &cube_vbo);
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

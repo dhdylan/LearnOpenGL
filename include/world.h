@@ -14,7 +14,7 @@ namespace engine {
 		std::vector<engine::Point_Light> point_lights;
 		std::vector<engine::Spot_Light> spot_lights;
 		engine::Dir_Light dir_light;
-		std::vector<engine::Cube_Object> world_objects;
+		std::vector<engine::Cube_Object> cubes;
 		engine::Camera* user_camera;
 		#pragma endregion
 
@@ -22,9 +22,9 @@ namespace engine {
 		void draw_world()
 		{
 			//draw cubes
-			for (auto world_obj = world_objects.begin(); world_obj != world_objects.end(); world_obj++)
+			for (auto cube = cubes.begin(); cube != cubes.end(); cube++)
 			{
-				world_obj->draw_object(dir_light, point_lights, spot_lights, *user_camera);
+				cube->draw_object(dir_light, point_lights, spot_lights, *user_camera);
 			}
 
 			//draw lights

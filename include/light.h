@@ -1,7 +1,6 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 #include <glm/glm.hpp>
-#include <imgui.h>
 
 namespace engine
 {
@@ -11,17 +10,6 @@ namespace engine
 		#pragma region variables
 		glm::vec4 color;
 		unsigned int vao;
-		#pragma endregion
-
-		#pragma region getters/setters
-		void set_color_ImGui(ImVec4 _color)
-		{
-			color = glm::vec4(_color.x, _color.y, _color.z, _color.w);
-		}
-		ImVec4 get_color_ImGui()
-		{
-			return ImVec4(color.x, color.y, color.z, color.w);
-		}
 		#pragma endregion
 	};
 
